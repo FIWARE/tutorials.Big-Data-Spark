@@ -38,7 +38,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 
   
 
-# Real-time Processing of Historic Context Information using Apache Flink
+# Real-time Processing of Historic Context Information using Apache Spark
 
 
 > "Who controls the past controls the future: who controls the present controls the past."
