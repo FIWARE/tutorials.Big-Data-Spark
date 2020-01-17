@@ -5,13 +5,14 @@ import org.apache.spark._
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.fiware.cosmos.orion.spark.connector._
 /**
-  * Example2 Orion Connector
-  * @author @sonsoleslp
+  * Example2 Orion Spark Connector Tutorial
+  * @author @Javierlj
   */
 object Example2 {
-  final val URL_CB = "http://192.168.99.100:1026/v2/entities/"
   final val CONTENT_TYPE = ContentType.JSON
-  final val METHOD = HTTPMethod.POST
+  final val METHOD = HTTPMethod.PATCH
+  final val CONTENT = "{\n  \"on\": {\n      \"type\" : \"command\",\n      \"value\" : \"\"\n  }\n}"
+  final val HEADERS = Map("fiware-service" -> "openiot","fiware-servicepath" -> "/","Accept" -> "*/*")
 
   def main(args: Array[String]): Unit = {
 
@@ -23,20 +24,16 @@ object Example2 {
     // Process event stream
     val processedDataStream = eventStream
       .flatMap(event => event.entities)
-      .map(ent => {
-        val temp: Float = ent.attrs("temperature").value.asInstanceOf[Number].floatValue()
-        (ent.id, temp)
-      })
-      .reduceByKeyAndWindow(_ min _ ,Seconds(10))
-      .map(a=> new Temp_Node(a._1,a._2))
-      .map(tempNode => {
-        val url = URL_CB + tempNode.id + "/attrs"
-        OrionSinkObject(tempNode.toString, url, CONTENT_TYPE, METHOD)
-      })
+      .filter(entity=>(entity.attrs("count").value == "1"))
+      .map(entity=> new Sensor(entity.id))
+      .window(Seconds(10))
 
-
+    val sinkStream= processedDataStream.map(sensor => {
+      val url="http://localhost:1026/v2/entities/Lamp:"+sensor.id.takeRight(3)+"/attrs"
+      OrionSinkObject(CONTENT,url,CONTENT_TYPE,METHOD,HEADERS)
+    })
     // Add Orion Sink
-    OrionSink.addSink( processedDataStream )
+    OrionSink.addSink( sinkStream )
 
     // print the results with a single thread, rather than in parallel
     processedDataStream.print()
@@ -45,7 +42,5 @@ object Example2 {
     ssc.awaitTermination()
   }
 
-  case class Temp_Node(id: String, temperature: Float) extends  Serializable {
-    override def toString :String = { "{\"temperature_min\": { \"value\":" + temperature + ", \"type\": \"Float\"}}" }
-  }
+  case class Sensor(id: String)
 }
