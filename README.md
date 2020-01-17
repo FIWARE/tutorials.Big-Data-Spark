@@ -45,7 +45,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 >
 > — George Orwell. "1984" (1949)
 
-[FIWARE Cosmos](https://fiware-cosmos-flink.readthedocs.io/en/latest/) is a Generic Enabler that allows for an easier Big Data analysis over context integrated with some of the most popular Big Data platforms, such as [Apache Flink](https://flink.apache.org/) and [Apache Spark](https://spark.apache.org/).
+[FIWARE Cosmos](https://fiware-cosmos-spark.readthedocs.io/en/latest/) is a Generic Enabler that allows for an easier Big Data analysis over context integrated with some of the most popular Big Data platforms, such as [Apache Flink](https://flink.apache.org/) and [Apache Spark](https://spark.apache.org/).
 
 The [FIWARE Cosmos Orion Spark Connector](http://fiware-cosmos-spark.rtfd.io) is a software tool that enables a direct ingestion of the context data coming from the notifications sent by **Orion Context Broker** to the Apache Spark processing engine. This allows to aggregate data in a time window in order to extract value from them in real-time.
 
@@ -282,13 +282,13 @@ Now we can run our code by hitting the play button on IntelliJ.
 
 ##### Subscribing to context changes
 
-Once a dynamic context system is up and running (execute Example1), we need to inform **Flink** of changes in context.
+Once a dynamic context system is up and running (execute Example1), we need to inform **Spark** of changes in context.
 
 This is done by making a POST request to the `/v2/subscription` endpoint of the Orion Context Broker.
 
 - The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to measurements from the attached IoT Sensors, since they had been provisioned using these settings
 
-- The notification `url` must match the one our Flink program is listening to. Substiture ${MY_IP} for your machine's IP address in the docker0 network (must be accesible from the docker container). You can get this IP like so (maybe yo need to use sudo):
+- The notification `url` must match the one our Spark program is listening to. Substiture ${MY_IP} for your machine's IP address in the docker0 network (must be accesible from the docker container). You can get this IP like so (maybe yo need to use sudo):
 ```bash
 docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}'
 ```
@@ -306,7 +306,7 @@ curl -iX POST \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
   -d '{
-  "description": "Notify Flink of all context changes",
+  "description": "Notify Spark of all context changes",
   "subject": {
     "entities": [
       {
@@ -346,7 +346,7 @@ curl -X GET \
 [
   {
     "id": "5d76059d14eda92b0686f255",
-    "description": "Notify Flink of all context changes",
+    "description": "Notify Spark of all context changes",
     "status": "active",
     "subject": {
       "entities": [
@@ -484,7 +484,7 @@ curl -iX POST \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
   -d '{
-  "description": "Notify Flink of all context changes",
+  "description": "Notify Spark of all context changes",
   "subject": {
     "entities": [
       {
@@ -503,15 +503,15 @@ curl -iX POST \
 
 You can open a door and the lamp will switch on.
 
-#### Example 3: Packaging the code and submitting it to the Flink Job Manager
-In the previous examples, we've seen how to get the connector up and running from an IDE like IntelliJ. In a real case scenario, we might want to package our code and submit it to a Flink cluster in order to run our operations in parallel.
-The Flink Dashoard is listening on port 8081:
+### Example 3: Packaging the code and submitting it to the Spark Job Manager
+In the previous examples, we've seen how to get the connector up and running from an IDE like IntelliJ. In a real case scenario, we might want to package our code and submit it to a Spark cluster in order to run our operations in parallel.
 
-![Screenshot](https://raw.githubusercontent.com/sonsoleslp/fiware-cosmos-orion-flink-connector-tutorial/master/img/Tutorial%20FIWARE%20Flink.png)
+Follow the [**Setting up the scenario**](#setting-up-the-scenario) section if you haven't already in order to deploy the containers needed.
+After that, we need to make some changes to our code.
 
 
 ##### Subscribing to notifications
-First, we need to change the notification URL of our subscription to point to our Flink node like so:
+First, we need to change the notification URL of our subscription to point to our Spark node like so:
 
 ```bash
 curl -iX POST \
@@ -520,7 +520,7 @@ curl -iX POST \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
   -d '{
-  "description": "Notify Flink of all context changes",
+  "description": "Notify Spark of all context changes",
   "subject": {
     "entities": [
       {
@@ -530,7 +530,7 @@ curl -iX POST \
   },
   "notification": {
     "http": {
-      "url": "http://taskmanager:9001/notify"
+      "url": "http://spark-master:9001"
     }
   },
   "throttling": 5
@@ -554,21 +554,13 @@ We should replace localhost in example 2 with the orion container hostname:
 
 ##### Packaging the code
 
-Let's build a JAR package of the example. In it, we need to include all the dependencies we have used, such as the connector, but exclude some of the dependencies provided by the environment (Flink, Scala...).
+Let's build a JAR package of the example. In it, we need to include all the dependencies we have used, such as the connector, but exclude some of the dependencies provided by the environment (Spark, Scala...).
 This can be done through the `maven package` command without the `add-dependencies-for-IDEA` profile checked.
-This will build a JAR file under `target/orion.flink.connector.tutorial-1.0-SNAPSHOT.jar`.
+This will build a JAR file under `target/orion.spark.connector.tutorial-2.0-SNAPSHOT.jar`.
+
 
 ##### Submitting the job
 
+Let's submit the Example 3 code to the Spark cluster we have deployed. In order to do this you can use the spark-submit command provided by Spark.
 
-Let's submit the Example 3 code to the Flink cluster we have deployed. In order to do this, open the Flink GUI on the browser ([http://localhost:8081](http://localhost:8081)) and select the **Submit new Job** section on the left menu.
-Click the **Add New** button and upload the JAR. Once uploaded, select it from the **Uploaded JARs** list and specify the class to execute:
-```scala
-org.fiware.cosmos.orion.flink.connector.tutorial.example2.Example2
-```
-
-![Screenshot](https://raw.githubusercontent.com/sonsoleslp/fiware-cosmos-orion-flink-connector-tutorial/master/img/submit-flink.png)
-
-
-Once this field is filled in, we can click the **Submit** button and we will see that out job is running.
 Now we can open a door and see the lamp turning on.
