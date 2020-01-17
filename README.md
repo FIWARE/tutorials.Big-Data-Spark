@@ -400,52 +400,59 @@ The second example switches on a lamp when its motion sensor detects movement.
 ##### Switching on a lamp
 Let's take a look at the Example2 code now:
 ```scala
-package org.fiware.cosmos.orion.flink.connector.tutorial.example2  
-  
-  
-import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}  
-import org.apache.flink.streaming.api.windowing.time.Time  
-import org.fiware.cosmos.orion.flink.connector._  
-  
-  
-object Example2{  
-  final val CONTENT_TYPE = ContentType.Plain  
-  final val METHOD = HTTPMethod.POST  
+package org.fiware.cosmos.orion.spark.connector.tutorial.example2
+
+
+import org.apache.spark._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.fiware.cosmos.orion.spark.connector._
+/**
+  * Example2 Orion Spark Connector Tutorial
+  * @author @Javierlj
+  */
+object Example2 {
+  final val CONTENT_TYPE = ContentType.JSON
+  final val METHOD = HTTPMethod.PATCH
   final val CONTENT = "{\n  \"on\": {\n      \"type\" : \"command\",\n      \"value\" : \"\"\n  }\n}"
   final val HEADERS = Map("fiware-service" -> "openiot","fiware-servicepath" -> "/","Accept" -> "*/*")
-  
-  def main(args: Array[String]): Unit = {  
-    val env = StreamExecutionEnvironment.getExecutionEnvironment  
-  // Create Orion Source. Receive notifications on port 9001  
-  val eventStream = env.addSource(new OrionSource(9001))  
-  
-    // Process event stream  
-  val processedDataStream = eventStream  
-      .flatMap(event => event.entities)  
-      .filter(entity=>(entity.attrs("count").value == "1"))  
-      .map(entity => new Sensor(entity.id))  
-      .keyBy("id")  
-      .timeWindow(Time.seconds(5),Time.seconds(2))  
-      .min("id")  
-  
-    // print the results with a single thread, rather than in parallel  
-  processedDataStream.print().setParallelism(1)  
-  
-    val sinkStream = processedDataStream.map(node => {  
-      new OrionSinkObject("urn:ngsi-ld:Lamp"+ node.id.takeRight(3)+ "@on","http://${IP}:3001/iot/lamp"+ node.id.takeRight(3),CONTENT_TYPE,METHOD)  
-    })   
-    OrionSink.addSink(sinkStream)  
-    env.execute("Socket Window NgsiEvent")  
-  }  
-  
-  case class Sensor(id: String)  
+
+  def main(args: Array[String]): Unit = {
+
+    val conf = new SparkConf().setMaster("local[4]").setAppName("Temperature")
+    val ssc = new StreamingContext(conf, Seconds(10))
+    // Create Orion Source. Receive notifications on port 9001
+    val eventStream = ssc.receiverStream(new OrionReceiver(9001))
+
+    // Process event stream
+    val processedDataStream = eventStream
+      .flatMap(event => event.entities)
+      .filter(entity=>(entity.attrs("count").value == "1"))
+      .map(entity=> new Sensor(entity.id))
+      .window(Seconds(10))
+
+    val sinkStream= processedDataStream.map(sensor => {
+      val url="http://localhost:1026/v2/entities/Lamp:"+sensor.id.takeRight(3)+"/attrs"
+      OrionSinkObject(CONTENT,url,CONTENT_TYPE,METHOD,HEADERS)
+    })
+    // Add Orion Sink
+    OrionSink.addSink( sinkStream )
+
+    // print the results with a single thread, rather than in parallel
+    processedDataStream.print()
+    ssc.start()
+
+    ssc.awaitTermination()
+  }
+
+  case class Sensor(id: String)
 }
 ```
 As you can see, it is similar to the previous example. The main difference is that it writes the processed data back in the Context Broker through the  **`OrionSink`**. 
 ```scala
-val sinkStream = processedDataStream.map(node => {
-      new OrionSinkObject(CONTENT, "http://localhost:1026/v2/entities/Lamp:"+node.id.takeRight(3)+"/attrs", CONTENT_TYPE,         METHOD, HEADERS)
-    })
+val sinkStream= processedDataStream.map(sensor => {
+      val url="http://localhost:1026/v2/entities/Lamp:"+sensor.id.takeRight(3)+"/attrs"
+      OrionSinkObject(CONTENT,url,CONTENT_TYPE,METHOD,HEADERS)
+})
 
 OrionSink.addSink(sinkStream)
 ```
