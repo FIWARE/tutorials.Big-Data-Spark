@@ -186,114 +186,94 @@ The first example makes use of the OrionSource in order to receive notifications
 
 ```scala 
 
-package org.fiware.cosmos.orion.flink.connector.tutorial.example1
-
-import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
-
-import org.apache.flink.streaming.api.windowing.time.Time
-
-import org.fiware.cosmos.orion.flink.connector.{OrionSource}
+package org.fiware.cosmos.orion.spark.connector.tutorial.example1
 
 
+import org.apache.spark._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.fiware.cosmos.orion.spark.connector._
+/**
+  * Example1 Orion Spark Tutorial
+  * @author @Javierlj
+  */
 object Example1{
 
   def main(args: Array[String]): Unit = {
 
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val conf = new SparkConf().setMaster("local[4]").setAppName("Example 1")
+    val ssc = new StreamingContext(conf, Seconds(10))
     // Create Orion Source. Receive notifications on port 9001
-    val eventStream = env.addSource(new OrionSource(9001))
+    val eventStream = ssc.receiverStream(new OrionReceiver(9001))
 
     // Process event stream
-    val processedDataStream = eventStream
-    .flatMap(event => event.entities)
-    .map(entity => new Sensor(entity.`type`,1))
-    .keyBy("device")
-    .timeWindow(Time.seconds(60))
-    .sum(1)
-    
-    // print the results with a single thread, rather than in parallel
-    processedDataStream.print().setParallelism(1)
-    env.execute("Socket Window NgsiEvent")
+    eventStream
+      .flatMap(event => event.entities)
+      .map(ent => {
+        new Sensor(ent.`type`)
+      })
+      .countByValue()
+      .window(Seconds(10))
+      .print()
+
+
+    ssc.start()
+    ssc.awaitTermination()
   }
-  case class Sensor(device: String, sum: Int)
+  case class Sensor(device: String)
 }
 
 ```
-The first lines of the program are aimed at importing the necessary dependencies, including the connector. After that, the first step is to create an instance of the Orion Source using the class provided by the connector and to add it to the environment provided by Flink.
-
+After importing the necessary dependencies, the first step is creating the source and adding it to the environment.
 
 ```scala
-val eventStream = env.addSource(new OrionSource(9001))
+val eventStream = ssc.receiverStream(new OrionReceiver(9001))
 ```
 
 The `OrionSource` accepts a port number as a parameter. The connector will be listening through this port to data coming from Orion. These data will be in the form of a `DataStream` of `NgsiEvent` objects.
 
-You can check the details of this object in the [connector docs](https://github.com/ging/fiware-cosmos-orion-flink-connector/blob/master/README.md#orionsource).
+You can check the details of this object in the [connector docs](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionsource).
 
 In the example, the first step of the processing is flat-mapping the entities. This operation is performed in order to put together the entity objects of all the NGSI Events received in a period of time.
 
 ```scala
-
-val processedDataStream = eventStream
-
+eventStream
 .flatMap(event => event.entities)
-
 ```
 
 Once we have all the entities together, you can iterate over them (with `map`) and extract the desired attributes. In this case, we are interested in the sensor type (Door, Motion, Bell or Lamp).
 
 ```scala
-
 // ...
-
-.map(entity => new Sensor(entity.`type`,1))
-
+.map(ent => {
+        new Sensor(ent.`type`)
+})
 ```
 
-In each iteration, we create a custom object with the properties we need: the sensor type and the increment of each notification. For this purpose, we can define a case class like so:
+In each iteration, we create a custom object with the properties we need: the sensor type . For this purpose, we can define a case class like so:
 
 ```scala
-
-case class Sensor(device: String, sum: Int)
-
+case class Sensor(device: String)
 ```
 
 Now we can group the created objects by the type of device and perform operations on them:
 
 ```scala
-
 // ...
-
-.keyBy("device")
-
+.countByValue()
 ```
 
 We can provide a custom processing window, like so:
 
 ```scala
-
 // ...
-
-.timeWindow(Time.seconds(60))
-
-```
-
-And then specify the operation to perform in said time interval:
-
-```scala
-
-// ...
-
-.sum(1)
-
+.window(Seconds(10))
 ```
 
 After the processing, we can print the results on the console:
 
 ```scala
-
-processedDataStream.print().setParallelism(1)
-
+// ...
+.print()
 ```
 
 Or we can persist them using the sink of our choice.
@@ -406,10 +386,9 @@ Finally, check that the `status` of the subscription is `active` - an expired su
 
 After creating the subscription, the output on the IntelliJ console will be like the following:
 ```
-Sensor(Bell,3)
-Sensor(Door,4)
-Sensor(Lamp,7)
-Sensor(Motion,6)
+(Sensor(Bell),1)
+(Sensor(Motion),1)
+(Sensor(Lamp),1)
 ```
 
 
