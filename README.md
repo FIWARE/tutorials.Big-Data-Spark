@@ -9,7 +9,7 @@
 
   
 
-This tutorial is an introduction to the [FIWARE Cosmos Orion Flink Connector](http://fiware-cosmos-flink.rtfd.io), which enables easier Big Data analysis over context, integrated with one of the most popular BigData platforms: [Apache Flink](https://flink.apache.org/). Apache Flink is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams. Flink has been designed to run in all common cluster environments, perform computations at in-memory speed and at any scale.
+This tutorial is an introduction to the [FIWARE Cosmos Orion Spark Connector](http://fiware-cosmos-spark.rtfd.io), which enables easier Big Data analysis over context, integrated with one of the most popular BigData platforms: [Apache Spark](https://spark.apache.org/). Apache Spark is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams. Spark has been designed to run in all common cluster environments, perform computations at in-memory speed and at any scale.
 
   
 The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as [Postman documentation](https://fiware.github.io/tutorials.Historic-Context-NIFI/)
@@ -25,7 +25,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 <summary><strong>Details</strong></summary>
 
   
--  [Real-time Processing of Historic Context Information using Apache Flink](#real-time-processing-of-historic-context-information-using-apache-flink)
+-  [Real-time Processing of Historic Context Information using Apache Spark](#real-time-processing-of-historic-context-information-using-apache-spark)
 -  [Architecture](#architecture)
 -  [Prerequisites](#prerequisites)
 -  [Docker and Docker Compose](#docker-and-docker-compose)
@@ -38,7 +38,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 
   
 
-# Real-time Processing of Historic Context Information using Apache Flink
+# Real-time Processing of Historic Context Information using Apache Spark
 
 
 > "Who controls the past controls the future: who controls the present controls the past."
@@ -47,7 +47,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 
 [FIWARE Cosmos](https://fiware-cosmos-flink.readthedocs.io/en/latest/) is a Generic Enabler that allows for an easier Big Data analysis over context integrated with some of the most popular Big Data platforms, such as [Apache Flink](https://flink.apache.org/) and [Apache Spark](https://spark.apache.org/).
 
-The [FIWARE Cosmos Orion Flink Connector](http://fiware-cosmos-flink.rtfd.io) is a software tool that enables a direct ingestion of the context data coming from the notifications sent by **Orion Context Broker** to the Apache Flink processing engine. This allows to aggregate data in a time window in order to extract value from them in real-time.
+The [FIWARE Cosmos Orion Spark Connector](http://fiware-cosmos-spark.rtfd.io) is a software tool that enables a direct ingestion of the context data coming from the notifications sent by **Orion Context Broker** to the Apache Spark processing engine. This allows to aggregate data in a time window in order to extract value from them in real-time.
 
 #### Device Monitor
 
@@ -60,7 +60,7 @@ For the purpose of this tutorial, a series of dummy IoT devices have been create
 # Architecture
 
 
-This application builds on the components and dummy IoT devices created in [previous tutorials](https://github.com/FIWARE/tutorials.IoT-Agent/). It will make use of three FIWARE components - the [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/), the [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/), and the [Cosmos Orion Flink Connector](https://fiware-cosmos-flink.readthedocs.io/en/latest/) for connecting Orion to an Apache Flink cluster. Additional databases are now involved - both the Orion Context Broker and the IoT Agent rely on [MongoDB](https://www.mongodb.com/) technology to keep persistence of the information they hold
+This application builds on the components and dummy IoT devices created in [previous tutorials](https://github.com/FIWARE/tutorials.IoT-Agent/). It will make use of three FIWARE components - the [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/), the [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/), and the [Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) for connecting Orion to an Apache Spark cluster. Additional databases are now involved - both the Orion Context Broker and the IoT Agent rely on [MongoDB](https://www.mongodb.com/) technology to keep persistence of the information they hold
 
   
 
@@ -69,7 +69,7 @@ Therefore the overall architecture will consist of the following elements:
 - Three **FIWARE Generic Enablers**:
     - The FIWARE [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
     - The FIWARE [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) which will receive northbound measurements from the dummy IoT devices in [Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual) format and convert them to [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) requests for the context broker to alter the state of the context entities
-    - The FIWARE [Cosmos Orion Flink Connector](https://fiware-cosmos-flink.readthedocs.io/en/latest/) which will subscribe to context changes and make operations on them in real-time
+    - The FIWARE [Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) which will subscribe to context changes and make operations on them in real-time
 - One **Database**:
   - The underlying [MongoDB](https://www.mongodb.com/) database :
       - Used by the **Orion Context Broker** to hold context data information such as data entities, subscriptions and registrations
@@ -139,8 +139,8 @@ Before you start, you should ensure that you have obtained or built the necessar
   
 ```bash
 
-git clone https://github.com/sonsoleslp/fiware-cosmos-orion-flink-connector-tutorial.git
-cd fiware-cosmos-orion-flink-connector-tutorial
+git clone https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial.git
+cd fiware-cosmos-orion-spark-connector-tutorial
 ./services create
 
 ```
@@ -159,11 +159,11 @@ To start the system, run the following command:
 > ```
   
 
-Next, in order to use the Orion Flink Connector we need to install the JAR using Maven:
+Next, in order to use the Orion Spark Connector we need to install the JAR using Maven:
 
 ```
 cd job
-mvn install:install-file -Dfile=./orion.flink.connector-1.2.3.jar -DgroupId=org.fiware.cosmos -DartifactId=orion.flink.connector -Dversion=1.2.3 -Dpackaging=jar
+mvn install:install-file -Dfile=./orion.spark.connector-1.2.0.jar -DgroupId=org.fiware.cosmos -DartifactId=orion.spark.connector -Dversion=1.2.0 -Dpackaging=jar
 ```
 
 ### Generating Context Data
@@ -182,118 +182,98 @@ For running locally we should download [IntelliJ](https://www.jetbrains.com/idea
 
 #### Example 1: Receiving data and performing operations
 
-The first example makes use of the OrionSource in order to receive notifications from the Orion Context Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can find the code of Example 1 in `job/src/main/scala/org/fiware/cosmos/orion/flink/connector/tutorial/example1/Example1.scala`:
+The first example makes use of the OrionSource in order to receive notifications from the Orion Context Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can find the code of Example 1 in `job/src/main/scala/org/fiware/cosmos/orion/spark/connector/tutorial/example1/Example1.scala`:
 
 ```scala 
 
-package org.fiware.cosmos.orion.flink.connector.tutorial.example1
-
-import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
-
-import org.apache.flink.streaming.api.windowing.time.Time
-
-import org.fiware.cosmos.orion.flink.connector.{OrionSource}
+package org.fiware.cosmos.orion.spark.connector.tutorial.example1
 
 
+import org.apache.spark._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.fiware.cosmos.orion.spark.connector._
+/**
+  * Example1 Orion Spark Tutorial
+  * @author @Javierlj
+  */
 object Example1{
 
   def main(args: Array[String]): Unit = {
 
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val conf = new SparkConf().setMaster("local[4]").setAppName("Example 1")
+    val ssc = new StreamingContext(conf, Seconds(10))
     // Create Orion Source. Receive notifications on port 9001
-    val eventStream = env.addSource(new OrionSource(9001))
+    val eventStream = ssc.receiverStream(new OrionReceiver(9001))
 
     // Process event stream
-    val processedDataStream = eventStream
-    .flatMap(event => event.entities)
-    .map(entity => new Sensor(entity.`type`,1))
-    .keyBy("device")
-    .timeWindow(Time.seconds(60))
-    .sum(1)
-    
-    // print the results with a single thread, rather than in parallel
-    processedDataStream.print().setParallelism(1)
-    env.execute("Socket Window NgsiEvent")
+    eventStream
+      .flatMap(event => event.entities)
+      .map(ent => {
+        new Sensor(ent.`type`)
+      })
+      .countByValue()
+      .window(Seconds(10))
+      .print()
+
+
+    ssc.start()
+    ssc.awaitTermination()
   }
-  case class Sensor(device: String, sum: Int)
+  case class Sensor(device: String)
 }
 
 ```
-The first lines of the program are aimed at importing the necessary dependencies, including the connector. After that, the first step is to create an instance of the Orion Source using the class provided by the connector and to add it to the environment provided by Flink.
-
+After importing the necessary dependencies, the first step is creating the source and adding it to the environment.
 
 ```scala
-val eventStream = env.addSource(new OrionSource(9001))
+val eventStream = ssc.receiverStream(new OrionReceiver(9001))
 ```
 
 The `OrionSource` accepts a port number as a parameter. The connector will be listening through this port to data coming from Orion. These data will be in the form of a `DataStream` of `NgsiEvent` objects.
 
-You can check the details of this object in the [connector docs](https://github.com/ging/fiware-cosmos-orion-flink-connector/blob/master/README.md#orionsource).
+You can check the details of this object in the [connector docs](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionsource).
 
 In the example, the first step of the processing is flat-mapping the entities. This operation is performed in order to put together the entity objects of all the NGSI Events received in a period of time.
 
 ```scala
-
-val processedDataStream = eventStream
-
+eventStream
 .flatMap(event => event.entities)
-
 ```
 
 Once we have all the entities together, you can iterate over them (with `map`) and extract the desired attributes. In this case, we are interested in the sensor type (Door, Motion, Bell or Lamp).
 
 ```scala
-
 // ...
-
-.map(entity => new Sensor(entity.`type`,1))
-
+.map(ent => {
+        new Sensor(ent.`type`)
+})
 ```
 
-In each iteration, we create a custom object with the properties we need: the sensor type and the increment of each notification. For this purpose, we can define a case class like so:
+In each iteration, we create a custom object with the properties we need: the sensor type . For this purpose, we can define a case class like so:
 
 ```scala
-
-case class Sensor(device: String, sum: Int)
-
+case class Sensor(device: String)
 ```
 
 Now we can group the created objects by the type of device and perform operations on them:
 
 ```scala
-
 // ...
-
-.keyBy("device")
-
+.countByValue()
 ```
 
 We can provide a custom processing window, like so:
 
 ```scala
-
 // ...
-
-.timeWindow(Time.seconds(60))
-
-```
-
-And then specify the operation to perform in said time interval:
-
-```scala
-
-// ...
-
-.sum(1)
-
+.window(Seconds(10))
 ```
 
 After the processing, we can print the results on the console:
 
 ```scala
-
-processedDataStream.print().setParallelism(1)
-
+// ...
+.print()
 ```
 
 Or we can persist them using the sink of our choice.
@@ -406,10 +386,9 @@ Finally, check that the `status` of the subscription is `active` - an expired su
 
 After creating the subscription, the output on the IntelliJ console will be like the following:
 ```
-Sensor(Bell,3)
-Sensor(Door,4)
-Sensor(Lamp,7)
-Sensor(Motion,6)
+(Sensor(Bell),1)
+(Sensor(Motion),1)
+(Sensor(Lamp),1)
 ```
 
 
