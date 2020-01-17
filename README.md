@@ -182,7 +182,7 @@ For running locally we should download [IntelliJ](https://www.jetbrains.com/idea
 
 #### Example 1: Receiving data and performing operations
 
-The first example makes use of the OrionSource in order to receive notifications from the Orion Context Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can find the code of Example 1 in `job/src/main/scala/org/fiware/cosmos/orion/flink/connector/tutorial/example1/Example1.scala`:
+The first example makes use of the OrionSource in order to receive notifications from the Orion Context Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can find the code of Example 1 in `job/src/main/scala/org/fiware/cosmos/orion/spark/connector/tutorial/example1/Example1.scala`:
 
 ```scala 
 
