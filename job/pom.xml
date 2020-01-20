@@ -22,7 +22,7 @@ under the License.
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.fiware.cosmos</groupId>
-	<artifactId>orion.spark.connector.examples</artifactId>
+	<artifactId>orion.spark.connector.tutorial</artifactId>
 	<version>1.2.0</version>
 	<packaging>jar</packaging>
 
