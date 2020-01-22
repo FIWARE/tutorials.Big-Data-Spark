@@ -561,6 +561,6 @@ This will build a JAR file under `target/orion.spark.connector.tutorial-2.0-SNAP
 
 ##### Submitting the job
 
-Let's submit the Example 3 code to the Spark cluster we have deployed. In order to do this you can use the spark-submit command provided by Spark.
+Let's submit the Example 3 code to the Spark cluster we have deployed. In order to do this you can use the spark-submit command provided by [Spark](https://spark.apache.org/downloads.html).
 
 Now we can open a door and see the lamp turning on.
