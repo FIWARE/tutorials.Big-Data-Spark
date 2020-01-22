@@ -563,4 +563,8 @@ This will build a JAR file under `target/orion.spark.connector.tutorial-2.0-SNAP
 
 Let's submit the Example 3 code to the Spark cluster we have deployed. In order to do this you can use the spark-submit command provided by [Spark](https://spark.apache.org/docs/latest/index.html).
 
+```bash
+./bin/spark-submit --class package org.fiware.cosmos.orion.spark.connector.tutorial.example2 /path/to/fiware-cosmos-orion-spark-connector-tutorial/job/target/orion.spark.connector.tutorial-1.2.0.jar
+```
+
 Now we can open a door and see the lamp turning on.
