@@ -391,7 +391,15 @@ After creating the subscription, the output on the IntelliJ console will be like
 (Sensor(Lamp),1)
 ```
 
+#### Example 1 with NGSI-LD:
 
+This example makes use of the NGSILDSource in order to receive notifications from the Orion Context Broker. Instead of NGSI v2 messages now it will log NGSI-LD messages. There is only change:
+
+```scala
+...
+val eventStream = env.addSource(new NGSILDReceiver(9001))
+...
+```
 
 #### Example 2:  Receiving data, performing operations and writing back to the Context Broker
 The second example switches on a lamp when its motion sensor detects movement.
