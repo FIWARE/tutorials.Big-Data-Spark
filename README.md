@@ -163,7 +163,7 @@ Next, in order to use the Orion Spark Connector we need to install the JAR using
 
 ```
 cd job
-mvn install:install-file -Dfile=./orion.spark.connector-1.2.0.jar -DgroupId=org.fiware.cosmos -DartifactId=orion.spark.connector -Dversion=1.2.0 -Dpackaging=jar
+mvn install:install-file -Dfile=./orion.spark.connector-1.2.1.jar -DgroupId=org.fiware.cosmos -DartifactId=orion.spark.connector -Dversion=1.2.1 -Dpackaging=jar
 ```
 
 ### Generating Context Data
@@ -564,7 +564,7 @@ This will build a JAR file under `target/orion.spark.connector.tutorial-2.0-SNAP
 Let's submit the Example 3 code to the Spark cluster we have deployed. In order to do this you can use the spark-submit command provided by [Spark](https://spark.apache.org/docs/latest/index.html).
 
 ```bash
-./bin/spark-submit --class package org.fiware.cosmos.orion.spark.connector.tutorial.example2 /path/to/fiware-cosmos-orion-spark-connector-tutorial/job/target/orion.spark.connector.tutorial-1.2.0.jar
+./bin/spark-submit --class package org.fiware.cosmos.orion.spark.connector.tutorial.example2 /path/to/fiware-cosmos-orion-spark-connector-tutorial/job/target/orion.spark.connector.tutorial-1.2.1.jar
 ```
 
 Now we can open a door and see the lamp turning on.
