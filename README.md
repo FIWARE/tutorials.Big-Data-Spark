@@ -393,7 +393,7 @@ After creating the subscription, the output on the IntelliJ console will be like
 
 #### Example 1 with NGSI-LD:
 
-This example makes use of the NGSILDSource in order to receive notifications from the Orion Context Broker. Instead of NGSI v2 messages now it will log NGSI-LD messages. There is only change:
+This example makes use of the NGSILDReceiver in order to receive notifications from the Orion Context Broker. Instead of NGSI v2 messages now it will log NGSI-LD messages. There is only change:
 
 ```scala
 ...
