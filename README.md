@@ -45,51 +45,81 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
 >
 > — George Orwell. "1984" (1949)
 
-[FIWARE Cosmos](https://fiware-cosmos-spark.readthedocs.io/en/latest/) is a Generic Enabler that allows for an easier Big Data analysis over context integrated with some of the most popular Big Data platforms, such as [Apache Flink](https://flink.apache.org/) and [Apache Spark](https://spark.apache.org/).
+Smart solutions based on FIWARE are architecturally designed around microservices. They are therefore are designed to
+scale-up from simple applications (such as the Supermarket tutorial) through to city-wide installations base on a large
+array of IoT sensors and other context data providers.
 
-The [FIWARE Cosmos Orion Spark Connector](http://fiware-cosmos-spark.rtfd.io) is a software tool that enables a direct ingestion of the context data coming from the notifications sent by **Orion Context Broker** to the Apache Spark processing engine. This allows to aggregate data in a time window in order to extract value from them in real-time.
+The massive amount of data involved enventually becomes too much for a single machine to analyse, process and store, and
+therefore the work must be delegated to additional distributed services. These distributed systems form the basis of
+so-called **Big Data Analysis**. The distribution of tasks allows developers to be able to extract insights from huge
+data sets which would be too complex to be dealt with using traditional methods. and uncover hidden patterns and
+correlations.
 
-#### Device Monitor
+As we have seen, context data is core to any Smart Solution, and the Context Broker is able to monitor changes of state
+and raise [subscription events](https://github.com/Fiware/tutorials.Subscriptions) as the context changes. For smaller
+installations, each subscription event can be processed one-by-one by a single receiving endpoint, however as the system
+grows, another technique will be required to avoid overwhelming the listener, potentially blocking resources and missing
+updates.
 
+**Apache Spark** is a Java/Scala based stream-processing framework which enables the delegation of data-flow processes.
+Therefore additional computational resources can be called upon to deal with data as events arrive. The **Cosmos Spark**
+connector allows developers write custom business logic to listen for context data subscription events and then process
+the flow of the context data. Spark is able to delegate these actions to other workers where they will be acted upon
+either in sequentiallly or in parallel as required. The data flow processing itself can be arbitrarily complex.
 
-For the purpose of this tutorial, a series of dummy IoT devices have been created, which will be attached to the context broker. Details of the architecture and protocol used can be found in the [IoT Sensors tutorial](https://github.com/FIWARE/tutorials.IoT-Sensors). The state of each device can be seen on the UltraLight device monitor web page found at: `http://localhost:3000/device/monitor`
+Obviously in reality our existing Supermarket scenario is far too small to require the use of a Big Data solution, but
+will serve as a basis for demonstrating the type of real-time processing which may be required in a larger solution
+which is processing a continuous stream of context-data events.
 
-
-![FIWARE Monitor](https://fiware.github.io/tutorials.Historic-Context-NIFI/img/device-monitor.png)
  
 # Architecture
 
+This application builds on the components and dummy IoT devices created in
+[previous tutorials](https://github.com/FIWARE/tutorials.IoT-Agent/). It will make use of three FIWARE components - the
+[Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/), the
+[IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/), and the
+[Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) for connecting Orion to an
+[Apache Spar cluster](https://spark.apache.org/docs/latest/cluster-overview.html). The Spark cluster
+itself will consist of a single **Cluster Manager** _master_ to coordinate execution and some **Worker Nodes** _worker_ to
+execute the tasks.
 
-This application builds on the components and dummy IoT devices created in [previous tutorials](https://github.com/FIWARE/tutorials.IoT-Agent/). It will make use of three FIWARE components - the [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/), the [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/), and the [Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) for connecting Orion to an Apache Spark cluster. Additional databases are now involved - both the Orion Context Broker and the IoT Agent rely on [MongoDB](https://www.mongodb.com/) technology to keep persistence of the information they hold
-
-  
+Both the Orion Context Broker and the IoT Agent rely on open source [MongoDB](https://www.mongodb.com/) technology to
+keep persistence of the information they hold. We will also be using the dummy IoT devices created in the
+[previous tutorial](https://github.com/FIWARE/tutorials.IoT-Agent/).
 
 Therefore the overall architecture will consist of the following elements:
 
-- Three **FIWARE Generic Enablers**:
-    - The FIWARE [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
-    - The FIWARE [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) which will receive northbound measurements from the dummy IoT devices in [Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual) format and convert them to [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) requests for the context broker to alter the state of the context entities
-    - The FIWARE [Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) which will subscribe to context changes and make operations on them in real-time
-- One **Database**:
-  - The underlying [MongoDB](https://www.mongodb.com/) database :
-      - Used by the **Orion Context Broker** to hold context data information such as data entities, subscriptions and registrations
-      - Used by the **IoT Agent** to hold device information such as device URLs and Keys
-- Three **Context Providers**:
-  - The **Stock Management Frontend** is not used in this tutorial. It does the following:
-    - Display store information and allow users to interact with the dummy IoT devices
-    - Show which products can be bought at each store
-    - Allow users to "buy" products and reduce the stock count.
-    - A webserver acting as set of [dummy IoT devices](https://github.com/FIWARE/tutorials.IoT-Sensors) using the [Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual) protocol running over HTTP.
-  - The **Context Provider NGSI** proxy is not used in this tutorial. It does the following:
-    - receive requests using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
-    - makes requests to publicly available data sources using their own APIs in a proprietary format
-    - returns context data back to the Orion Context Broker in
- [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
+-   Two **FIWARE Generic Enablers** as independent microservices:
+    -   The FIWARE [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests
+        using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
+    -   The FIWARE [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) which will
+        receive northbound measurements from the dummy IoT devices in
+        [Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+        format and convert them to [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) requests for the
+        context broker to alter the state of the context entities
+-   An [Apache Spark cluster](https://spark.apache.org/docs/latest/cluster-overview.html) consisting
+    of a single **ClusterManager** and **Worker Nodes**
+    -   The FIWARE [Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) will be
+        deployed as part of the dataflow which will subscribe to context changes and make operations on them in
+        real-time
+-   One [MongoDB](https://www.mongodb.com/) **database** :
+    -   Used by the **Orion Context Broker** to hold context data information such as data entities, subscriptions and
+        registrations
+    -   Used by the **IoT Agent** to hold device information such as device URLs and Keys
+-   Three **Context Providers**:
+    -   A webserver acting as set of [dummy IoT devices](https://github.com/FIWARE/tutorials.IoT-Sensors) using the
+        [Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+        protocol running over HTTP.
+    -   The **Stock Management Frontend** is not used in this tutorial. It does the following:
+        -   Display store information and allow users to interact with the dummy IoT devices
+        -   Show which products can be bought at each store
+        -   Allow users to "buy" products and reduce the stock count.
+    -   The **Context Provider NGSI** proxy is not used in this tutorial. It does the following:
+        -   receive requests using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
+        -   makes requests to publicly available data sources using their own APIs in a proprietary format
+        -   returns context data back to the Orion Context Broker in
+            [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
 
-  
-Since all interactions between the elements are initiated by HTTP requests, the entities can be containerized and run from exposed ports.
-
-The specific architecture of each section of the tutorial is discussed below.
 
 # Prerequisites
 
