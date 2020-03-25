@@ -150,14 +150,13 @@ spark-worker-1:
 
 The `spark-master` container is listening on three ports:
 
--   Port `7077` is exposed so we can see the web frontend of the Apache Spark Dashboard.
+-   Port `8080` is exposed so we can see the web frontend of the Apache Spark-Master Dashboard.
 -   Port `9001` is exposed so that the installation can receive context data subscriptions.
--   Port `8080` is used for internal communications.
+-   Port `7070` is used for internal communications.
 
 The `spark-worker-1` container is listening on one port:
 
--   Ports `8081` is used for internal communications.
-
+-   Ports `8081` is exposed so we can see the web frontend of the Apache Spark-Worker-1 Dashboard.
 
 # Prerequisites
 
