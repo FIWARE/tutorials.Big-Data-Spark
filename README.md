@@ -120,6 +120,44 @@ Therefore the overall architecture will consist of the following elements:
         -   returns context data back to the Orion Context Broker in
             [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
 
+## Spark Cluster Configuration
+
+```yaml
+spark-master:
+    image: bde2020/spark-master:2.4.5-hadoop2.7
+    container_name: spark-master
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+      - "9001:9001"
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+      - "constraint:node==spark-master"
+```
+
+```yaml
+spark-worker-1:
+    image: bde2020/spark-worker:2.4.5-hadoop2.7
+    container_name: spark-worker-1
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"
+    environment:
+      - "SPARK_MASTER=spark://spark-master:7077"
+      - "constraint:node==spark-master"
+```
+
+The `spark-master` container is listening on three ports:
+
+-   Port `7077` is exposed so we can see the web frontend of the Apache Spark Dashboard.
+-   Port `9001` is exposed so that the installation can receive context data subscriptions.
+-   Port `8080` is used for internal communications.
+
+The `spark-worker-1` container is listening on one port:
+
+-   Ports `8081` is used for internal communications.
+
 
 # Prerequisites
 
