@@ -226,12 +226,31 @@ To start the system, run the following command:
 > ```
   
 
-Next, in order to use the Orion Spark Connector we need to install the JAR using Maven:
+### Compiling a JAR file for Spark
 
+An existing `pom.xml` file has been created which holds the necessary prerequisites to build the examples JAR file
+
+In order to use the Orion Spark Connector we first need to manually install the connector JAR as an artifact using
+Maven:
+
+```console
+cd cosmos-examples
+mvn install:install-file \
+  -Dfile=./orion.spark.connector-1.2.1.jar \
+  -DgroupId=org.fiware.cosmos \
+  -DartifactId=orion.spark.connector \
+  -Dversion=1.2.1 \
+  -Dpackaging=jar
 ```
-cd job
-mvn install:install-file -Dfile=./orion.spark.connector-1.2.1.jar -DgroupId=org.fiware.cosmos -DartifactId=orion.spark.connector -Dversion=1.2.1 -Dpackaging=jar
+
+Thereafter the source code can be compiled by running the `mvn package` command within the same directory:
+
+```console
+cd cosmos-examples
+mvn package
 ```
+
+A new JAR file called `cosmos-examples-1.1.jar` will be created within the `cosmos-examples/target` directory.
 
 ### Generating Context Data
 
