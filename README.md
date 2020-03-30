@@ -303,6 +303,11 @@ find the source code of the example in
 
 ### Logger - Installing the JAR
 
+Run in console the following command:
+
+```console
+spark-submit  --class  org.fiware.cosmos.orion.spark.connector.tutorial.Logger --master  spark://spark-master:7077 --deploy-mode client ./cosmos-examples/target/cosmos-examples-1.0.jar --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
+```
 
 ### Logger - Subscribing to context changes
 
@@ -493,9 +498,9 @@ After the processing, the results are output to the console:
 processedDataStream.print()
 ```
 
-#### Example 1 with NGSI-LD:
+#### Logger - NGSI-LD:
 
-This example makes use of the NGSILDReceiver in order to receive notifications from the Orion Context Broker. Instead of NGSI v2 messages now it will log NGSI-LD messages. There is only change:
+The same example is provided for data in the NGSI LD format (LoggerLD.scala). This example makes use of the NGSILDSource provided by the Orion Flink Connector in order to receive messages in the NGSI LD format. The only part of the code that changes is the declaration of the source: You can use
 
 ```scala
 ...
@@ -503,24 +508,67 @@ val eventStream = env.addSource(new NGSILDReceiver(9001))
 ...
 ```
 
-#### Example 2:  Receiving data, performing operations and writing back to the Context Broker
+## Feedback Loop - Persisting Context Data
+
 The second example switches on a lamp when its motion sensor detects movement.
 
+The dataflow stream uses the `OrionReceiver` operator in order to receive notifications and filters the input to only
+respond to motion senseors and then uses the `OrionSink` to push processed context back to the Context Broker. You can
+find the source code of the example in
+[org/fiware/cosmos/tutorial/Feedback.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Feedback.scala)
 
-##### Switching on a lamp
-Let's take a look at the Example2 code now:
+
+### Feedback Loop - Installing the JAR
+
+```console
+spark-submit  --class  org.fiware.cosmos.orion.spark.connector.tutorial.Feedback --master  spark://spark-master:7077 --deploy-mode client ./cosmos-examples/target/cosmos-examples-1.0.jar --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
+```
+### Feedback Loop - Subscribing to context changes
+
+If the previous example has not been run, a new subscription will need to be set up. A narrower subscription can be set
+up to only trigger a notification when a motion sensor detects movement.
+
+> **Note:** If the previous subscription already exists, this step creating a second narrower Motion-only subscription
+> is unnecessary. There is a filter within the business logic of the scala task itself.
+
+```console
+curl -iX POST \
+  'http://localhost:1026/v2/subscriptions' \
+  -H 'Content-Type: application/json' \
+  -H 'fiware-service: openiot' \
+  -H 'fiware-servicepath: /' \
+  -d '{
+  "description": "Notify Spark of all context changes",
+  "subject": {
+    "entities": [
+      {
+        "idPattern": "Motion.*"
+      }
+    ]
+  },
+  "notification": {
+    "http": {
+      "url": "http://spark-master:9001"
+    }
+  }
+}'
+```
+
+### Feedback Loop - Analyzing the Code
+
 ```scala
-package org.fiware.cosmos.orion.spark.connector.tutorial.example2
+package org.fiware.cosmos.orion.spark.connector.tutorial
 
-
-import org.apache.spark._
+import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.fiware.cosmos.orion.spark.connector._
+
 /**
-  * Example2 Orion Spark Connector Tutorial
+  * Feedback - Orion Spark Connector Tutorial
+  *
   * @author @Javierlj
   */
-object Example2 {
+object Feedback {
   final val CONTENT_TYPE = ContentType.JSON
   final val METHOD = HTTPMethod.PATCH
   final val CONTENT = "{\n  \"on\": {\n      \"type\" : \"command\",\n      \"value\" : \"\"\n  }\n}"
@@ -528,7 +576,7 @@ object Example2 {
 
   def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf().setMaster("local[4]").setAppName("Temperature")
+    val conf = new SparkConf().setMaster("local[4]").setAppName("Feedback")
     val ssc = new StreamingContext(conf, Seconds(10))
     // Create Orion Source. Receive notifications on port 9001
     val eventStream = ssc.receiverStream(new OrionReceiver(9001))
@@ -556,16 +604,11 @@ object Example2 {
 
   case class Sensor(id: String)
 }
-```
-As you can see, it is similar to the previous example. The main difference is that it writes the processed data back in the Context Broker through the  **`OrionSink`**. 
-```scala
-val sinkStream= processedDataStream.map(sensor => {
-      val url="http://localhost:1026/v2/entities/Lamp:"+sensor.id.takeRight(3)+"/attrs"
-      OrionSinkObject(CONTENT,url,CONTENT_TYPE,METHOD,HEADERS)
-})
 
-OrionSink.addSink(sinkStream)
 ```
+
+As you can see, it is similar to the previous example. The main difference is that it writes the processed data back in the Context Broker through the  **`OrionSink`**. 
+
 The arguments of the **`OrionSinkObject`** are:
 -   **Message**: ```"{\n  \"on\": {\n      \"type\" : \"command\",\n      \"value\" : \"\"\n  }\n}"```. We send 'on' command 
 -   **URL**: ```"http://localhost:1026/v2/entities/Lamp:"+node.id.takeRight(3)+"/attrs"```. TakeRight(3) gets the number of the room, for example '001')
@@ -573,108 +616,13 @@ The arguments of the **`OrionSinkObject`** are:
 -   **HTTP Method**: `HTTPMethod.POST`.
 -   **Headers**: `Map("fiware-service" -> "openiot","fiware-servicepath" -> "/","Accept" -> "*/*")`. Optional parameter. We add the headers we need in the HTTP Request.
 
-##### Setting up the scenario
-First we need to delete the subscription we created before:
+# Next Steps
 
-```bash
-curl -X DELETE   'http://localhost:1026/v2/subscriptions/$subscriptionId'   -H 'fiware-service: openiot'   -H 'fiware-servicepath: /'
-```
-You can obtain the id of your subscription by performing a GET request to the `/v2/subscriptions` endpoint.
+Want to learn how to add more complexity to your application by adding advanced features? You can find out by reading
+the other [tutorials in this series](https://fiware-tutorials.rtfd.io)
 
-```bash
-curl -X GET   'http://localhost:1026/v2/subscriptions/'   -H 'fiware-service: openiot'   -H 'fiware-servicepath: /'
-```
+---
 
-Now we create other subscription that will only trigger a notification when a motion sensor detects movement. Do not forget to change $MY_IP to your machine's IP address in the docker0 network as indicated earlier.
+## License
 
-```bash
-curl -iX POST \
-  'http://localhost:1026/v2/subscriptions' \
-  -H 'Content-Type: application/json' \
-  -H 'fiware-service: openiot' \
-  -H 'fiware-servicepath: /' \
-  -d '{
-  "description": "Notify Spark of all context changes",
-  "subject": {
-    "entities": [
-      {
-        "idPattern": "Motion.*"
-      }
-    ]
-  },
-  "notification": {
-    "http": {
-      "url": "http://${MY_IP}:9001/v2/notify"
-    }
-  },
-  "throttling": 5
-}'
-```
-
-You can open a door and the lamp will switch on.
-
-### Example 3: Packaging the code and submitting it to the Spark Job Manager
-In the previous examples, we've seen how to get the connector up and running from an IDE like IntelliJ. In a real case scenario, we might want to package our code and submit it to a Spark cluster in order to run our operations in parallel.
-
-Follow the [**Setting up the scenario**](#setting-up-the-scenario) section if you haven't already in order to deploy the containers needed.
-After that, we need to make some changes to our code.
-
-
-##### Subscribing to notifications
-First, we need to change the notification URL of our subscription to point to our Spark node like so:
-
-```bash
-curl -iX POST \
-  'http://localhost:1026/v2/subscriptions' \
-  -H 'Content-Type: application/json' \
-  -H 'fiware-service: openiot' \
-  -H 'fiware-servicepath: /' \
-  -d '{
-  "description": "Notify Spark of all context changes",
-  "subject": {
-    "entities": [
-      {
-        "idPattern": "Motion.*"
-      }
-    ]
-  },
-  "notification": {
-    "http": {
-      "url": "http://spark-master:9001"
-    }
-  },
-  "throttling": 5
-}'
-```
-
-##### Changing the code
-
-We should replace localhost in example 2 with the orion container hostname:
-
-* Example 2
-```scala
-      new OrionSinkObject(CONTENT, "http://localhost:1026/v2/entities/Lamp:"+node.id.takeRight(3)+"/attrs", CONTENT_TYPE, METHOD, HEADERS)
-
-```
-* Example 3
-```scala
-      new OrionSinkObject(CONTENT, "http://orion:1026/v2/entities/Lamp:"+node.id.takeRight(3)+"/attrs", CONTENT_TYPE, METHOD, HEADERS)
-
-```
-
-##### Packaging the code
-
-Let's build a JAR package of the example. In it, we need to include all the dependencies we have used, such as the connector, but exclude some of the dependencies provided by the environment (Spark, Scala...).
-This can be done through the `maven package` command without the `add-dependencies-for-IDEA` profile checked.
-This will build a JAR file under `target/orion.spark.connector.tutorial-2.0-SNAPSHOT.jar`.
-
-
-##### Submitting the job
-
-Let's submit the Example 3 code to the Spark cluster we have deployed. In order to do this you can use the spark-submit command provided by [Spark](https://spark.apache.org/docs/latest/index.html).
-
-```bash
-./bin/spark-submit --class package org.fiware.cosmos.orion.spark.connector.tutorial.example2 /path/to/fiware-cosmos-orion-spark-connector-tutorial/job/target/orion.spark.connector.tutorial-1.2.1.jar
-```
-
-Now we can open a door and see the lamp turning on.
+[MIT](LICENSE) © 2020 FIWARE Foundation e.V.
