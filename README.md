@@ -188,8 +188,6 @@ necessary.
 ## Maven
 [Apache Maven](https://maven.apache.org/download.cgi) is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information. We will use Maven to define and download our dependencies and to build and package our code into a JAR file. 
 
-## IntelliJ (optional)
-[IntelliJ](https://www.jetbrains.com/idea/) is an IDE that eases the development of Scala programs. We will use it to write and run our code.
 
 ## Cygwin for Windows
 
@@ -224,7 +222,40 @@ To start the system, run the following command:
 > ```bash
 > ./services stop
 > ```
-  
+
+
+# Real-time Processing Operations
+
+Dataflow within **Apache Flink** is defined within the
+[Flink documentation](https://ci.apache.org/projects/flink/flink-docs-release-1.9/concepts/programming-model.html) as
+follows:
+
+> "The basic building blocks of Flink programs are streams and transformations. Conceptually a stream is a (potentially
+> never-ending) flow of data records, and a transformation is an operation that takes one or more streams as input, and
+> produces one or more output streams as a result.
+>
+> When executed, Flink programs are mapped to streaming dataflows, consisting of streams and transformation operators.
+> Each dataflow starts with one or more sources and ends in one or more sinks. The dataflows resemble arbitrary directed
+> acyclic graphs (DAGs). Although special forms of cycles are permitted via iteration constructs, for the most part this
+> can be glossed over this for simplicity."
+
+![](https://fiware.github.io/tutorials.Big-Data-Analysis/img/streaming-dataflow.png)
+
+This means that to create a streaming data flow we must supply the following:
+
+-   A mechanism for reading Context data as a **Source Operator**
+-   Business logic to define the transform operations
+-   A mechanism for pushing Context data back to the context broker as a **Sink Operator**
+
+The `orion-flink.connect.jar` offers both **Source** and **Sink** operations. It therefore only remains to write the
+necessary Scala code to connect the streaming dataflow pipeline operations together. The processing code can be complied
+into a JAR file which can be uploaded to the flink cluster. Two examples will be detailed below, all the source code for
+this tutorial can be found within the
+[cosmos-examples](https://github.com/FIWARE/tutorials.Big-Data-Analysis/tree/master/cosmos-examples) directory.
+
+Further Flink processing examples can be found on the
+[Apache Flink site](https://ci.apache.org/projects/flink/flink-docs-release-1.9/getting-started) and
+[Flink Connector Examples](https://fiware-cosmos-flink-examples.readthedocs.io/).
 
 ### Compiling a JAR file for Spark
 
@@ -252,7 +283,7 @@ mvn package
 
 A new JAR file called `cosmos-examples-1.1.jar` will be created within the `cosmos-examples/target` directory.
 
-### Generating Context Data
+### Generating a stream of Context Data
 
 For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated. The
 dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor` and
@@ -262,111 +293,18 @@ on the same page:
 
 ![](https://fiware.github.io/tutorials.Historic-Context-NIFI/img/door-open.gif)
   
-### Running examples locally
 
-For running locally we should download [IntelliJ](https://www.jetbrains.com/idea/download) and open the `job` directory of the project using [Maven](https://www.jetbrains.com/help/idea/maven-support.html#maven_import_project_start). Use JDK 1.8 
+## Example 1: Receiving data and performing operations
 
-#### Example 1: Receiving data and performing operations
+The first example makes use of the `OrionSource` operator in order to receive notifications from the Orion Context
+Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can
+find the source code of the example in
+[org/fiware/cosmos/tutorial/Logger.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Logger.scala)
 
-The first example makes use of the OrionSource in order to receive notifications from the Orion Context Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can find the code of Example 1 in `job/src/main/scala/org/fiware/cosmos/orion/spark/connector/tutorial/example1/Example1.scala`:
-
-```scala 
-
-package org.fiware.cosmos.orion.spark.connector.tutorial.example1
+### Logger - Installing the JAR
 
 
-import org.apache.spark._
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.fiware.cosmos.orion.spark.connector._
-/**
-  * Example1 Orion Spark Tutorial
-  * @author @Javierlj
-  */
-object Example1{
-
-  def main(args: Array[String]): Unit = {
-
-    val conf = new SparkConf().setMaster("local[4]").setAppName("Example 1")
-    val ssc = new StreamingContext(conf, Seconds(10))
-    // Create Orion Source. Receive notifications on port 9001
-    val eventStream = ssc.receiverStream(new OrionReceiver(9001))
-
-    // Process event stream
-    eventStream
-      .flatMap(event => event.entities)
-      .map(ent => {
-        new Sensor(ent.`type`)
-      })
-      .countByValue()
-      .window(Seconds(10))
-      .print()
-
-
-    ssc.start()
-    ssc.awaitTermination()
-  }
-  case class Sensor(device: String)
-}
-
-```
-After importing the necessary dependencies, the first step is creating the source and adding it to the environment.
-
-```scala
-val eventStream = ssc.receiverStream(new OrionReceiver(9001))
-```
-
-The `OrionSource` accepts a port number as a parameter. The connector will be listening through this port to data coming from Orion. These data will be in the form of a `DataStream` of `NgsiEvent` objects.
-
-You can check the details of this object in the [connector docs](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionsource).
-
-In the example, the first step of the processing is flat-mapping the entities. This operation is performed in order to put together the entity objects of all the NGSI Events received in a period of time.
-
-```scala
-eventStream
-.flatMap(event => event.entities)
-```
-
-Once we have all the entities together, you can iterate over them (with `map`) and extract the desired attributes. In this case, we are interested in the sensor type (Door, Motion, Bell or Lamp).
-
-```scala
-// ...
-.map(ent => {
-        new Sensor(ent.`type`)
-})
-```
-
-In each iteration, we create a custom object with the properties we need: the sensor type . For this purpose, we can define a case class like so:
-
-```scala
-case class Sensor(device: String)
-```
-
-Now we can group the created objects by the type of device and perform operations on them:
-
-```scala
-// ...
-.countByValue()
-```
-
-We can provide a custom processing window, like so:
-
-```scala
-// ...
-.window(Seconds(10))
-```
-
-After the processing, we can print the results on the console:
-
-```scala
-// ...
-.print()
-```
-
-Or we can persist them using the sink of our choice.
-Now we can run our code by hitting the play button on IntelliJ.
-
-
-##### Subscribing to context changes
+### Logger - Subscribing to context changes
 
 Once a dynamic context system is up and running (execute Example1), we need to inform **Spark** of changes in context.
 
@@ -402,7 +340,7 @@ curl -iX POST \
   },
   "notification": {
     "http": {
-    "url": "http://${MY_IP}:9001"
+    "url": "http://spark-master:9001"
     }
   },
   "throttling": 5
@@ -450,7 +388,7 @@ curl -X GET \
       "attrs": [],
       "attrsFormat": "normalized",
       "http": {
-        "url": "http://${MY_IP}:9001"
+        "url": "http://spark-master:9001"
       },
       "lastSuccess": "2019-09-09T09:36:33.00Z",
       "lastSuccessCode": 200
@@ -470,11 +408,93 @@ The `lastSuccess` should match the `lastNotification` date - if this is not the 
 
 Finally, check that the `status` of the subscription is `active` - an expired subscription will not fire.
 
-After creating the subscription, the output on the IntelliJ console will be like the following:
+### Logger - Checking the Output
+
+Leave the subscription running for **one minute**, then run the following:
+
+```console
+docker logs spark-master -f --until=60s > stdout.log 2>stderr.log
+cat stderr.log
 ```
-(Sensor(Bell),1)
-(Sensor(Motion),1)
-(Sensor(Lamp),1)
+
+After creating the subscription, the output on the console will be like the following:
+
+```text
+Sensor(Bell,3)
+Sensor(Door,4)
+Sensor(Lamp,7)
+Sensor(Motion,6)
+```
+
+### Logger - Analyzing the Code
+
+```scala 
+
+package org.fiware.cosmos.orion.spark.connector.tutorial
+
+import org.apache.spark.SparkConf
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.fiware.cosmos.orion.spark.connector.OrionReceiver
+
+/**
+  * Example1 Orion Spark Tutorial
+ *
+  * @author @Javierlj
+  */
+object Logger{
+
+  def main(args: Array[String]): Unit = {
+
+    val conf = new SparkConf().setMaster("local[4]").setAppName("Logger")
+    val ssc = new StreamingContext(conf, Seconds(5))
+    // Create Orion Source. Receive notifications on port 9001
+    val eventStream = ssc.receiverStream(new OrionReceiver(9001))
+
+    // Process event stream
+    val processedDataStream= eventStream
+      .flatMap(event => event.entities)
+      .map(ent => {
+        new Sensor(ent.`type`)
+      })
+      .countByValue()
+      .window(Seconds(10))
+
+    processedDataStream.print()
+
+    ssc.start()
+    ssc.awaitTermination()
+  }
+  case class Sensor(device: String)
+}
+```
+
+The first lines of the program are aimed at importing the necessary dependencies, including the connector. The next step
+is to create an instance of the `OrionReceiver` using the class provided by the connector and to add it to the environment
+provided by Flink.
+
+The `OrionSource` constructor accepts a port number (`9001`) as a parameter. This port is used to listen to the
+subscription notifications coming from Orion and converted to a `DataStream` of `NgsiEvent` objects. The definition of
+these objects can be found within the
+[Orion-Spark Connector documentation](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionsource).
+
+The stream processing consists of five separate steps. The first step (`flatMap()`) is performed in order to put
+together the entity objects of all the NGSI Events received in a period of time. Thereafter the code iterates over them
+(with the `map()` operation) and extracts the desired attributes. In this case, we are interested in the sensor `type`
+(`Door`, `Motion`, `Bell` or `Lamp`).
+
+Within each iteration, we create a custom object with the property we need: the sensor `type. For this purpose, we can define a case class as shown:
+
+```scala
+case class Sensor(device: String)
+```
+
+Therefter can count the created objects by the type of device (`countByValue()`) and perform operations such as
+`window()` on them.
+
+After the processing, the results are output to the console:
+
+```scala
+processedDataStream.print()
 ```
 
 #### Example 1 with NGSI-LD:
