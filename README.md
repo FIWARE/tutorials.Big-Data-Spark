@@ -306,24 +306,20 @@ find the source code of the example in
 
 ### Logger - Subscribing to context changes
 
-Once a dynamic context system is up and running (execute Example1), we need to inform **Spark** of changes in context.
+Once a dynamic context system is up and running (execute `Logger`), we need to inform **Spark** of changes in context.
 
 This is done by making a POST request to the `/v2/subscription` endpoint of the Orion Context Broker.
 
-- The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to measurements from the attached IoT Sensors, since they had been provisioned using these settings
+-   The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to
+    measurements from the attached IoT Sensors, since they had been provisioned using these settings
 
-- The notification `url` must match the one our Spark program is listening to. Substiture ${MY_IP} for your machine's IP address in the docker0 network (must be accesible from the docker container). You can get this IP like so (maybe yo need to use sudo):
-```bash
-docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}'
-```
+-   The notification `url` must match the one our Spark program is listening to.
 
-- The `throttling` value defines the rate that changes are sampled.
+-   The `throttling` value defines the rate that changes are sampled.
 
-###### :one: Request:
+#### :one: Request:
 
-  
-
-```bash
+```console
 curl -iX POST \
   'http://localhost:1026/v2/subscriptions' \
   -H 'Content-Type: application/json' \
@@ -340,73 +336,73 @@ curl -iX POST \
   },
   "notification": {
     "http": {
-    "url": "http://spark-master:9001"
-    }
-  },
-  "throttling": 5
+    "url": "http://spark-master:9001
+  }
 }'
 ```
 
-  
-
 The response will be `**201 - Created**`
 
-If a subscription has been created, we can check to see if it is firing by making a GET request to the `/v2/subscriptions` endpoint.
+If a subscription has been created, we can check to see if it is firing by making a GET request to the
+`/v2/subscriptions` endpoint.
 
+#### :two: Request:
 
-###### :two: Request:
-
-```bash
+```console
 curl -X GET \
 'http://localhost:1026/v2/subscriptions/' \
 -H 'fiware-service: openiot' \
 -H 'fiware-servicepath: /'
 ```
 
-###### Response:
-
+#### Response:
 
 ```json
 [
-  {
-    "id": "5d76059d14eda92b0686f255",
-    "description": "Notify Spark of all context changes",
-    "status": "active",
-    "subject": {
-      "entities": [
-      {
-        "idPattern": ".*"
-      }
-      ],
-      "condition": {
-        "attrs": []
-      }
-    },
-    "notification": {
-      "timesSent": 362,
-      "lastNotification": "2019-09-09T09:36:33.00Z",
-      "attrs": [],
-      "attrsFormat": "normalized",
-      "http": {
-        "url": "http://spark-master:9001"
-      },
-      "lastSuccess": "2019-09-09T09:36:33.00Z",
-      "lastSuccessCode": 200
-    },
-    "throttling": 5
-  }
+    {
+        "id": "5d76059d14eda92b0686f255",
+        "description": "Notify Spark of all context changes",
+        "status": "active",
+        "subject": {
+            "entities": [
+                {
+                    "idPattern": ".*"
+                }
+            ],
+            "condition": {
+                "attrs": []
+            }
+        },
+        "notification": {
+            "timesSent": 362,
+            "lastNotification": "2019-09-09T09:36:33.00Z",
+            "attrs": [],
+            "attrsFormat": "normalized",
+            "http": {
+                "url": "http://spark-master:9001"
+            },
+            "lastSuccess": "2019-09-09T09:36:33.00Z",
+            "lastSuccessCode": 200
+        }
+    }
 ]
 ```
 
-Within the `notification` section of the response, you can see several additional `attributes` which describe the health of the subscription
+Within the `notification` section of the response, you can see several additional `attributes` which describe the health
+of the subscription
 
-If the criteria of the subscription have been met, `timesSent` should be greater than `0`. A zero value would indicate that the `subject` of the subscription is incorrect or the subscription has created with the wrong `fiware-service-path` or `fiware-service` header
+If the criteria of the subscription have been met, `timesSent` should be greater than `0`. A zero value would indicate
+that the `subject` of the subscription is incorrect or the subscription has created with the wrong `fiware-service-path`
+or `fiware-service` header
 
-The `lastNotification` should be a recent timestamp - if this is not the case, then the devices are not regularly sending data. Remember to unlock the **Smart Door** and switch on the **Smart Lamp**
+The `lastNotification` should be a recent timestamp - if this is not the case, then the devices are not regularly
+sending data. Remember to unlock the **Smart Door** and switch on the **Smart Lamp**
 
-The `lastSuccess` should match the `lastNotification` date - if this is not the case then **Cosmos** is not receiving the subscription properly. Check that the hostname and port are correct.
+The `lastSuccess` should match the `lastNotification` date - if this is not the case then **Cosmos** is not receiving
+the subscription properly. Check that the hostname and port are correct.
 
 Finally, check that the `status` of the subscription is `active` - an expired subscription will not fire.
+
 
 ### Logger - Checking the Output
 
