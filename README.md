@@ -241,9 +241,7 @@ into a JAR file which can be uploaded to the spark cluster. Two examples will be
 this tutorial can be found within the
 [cosmos-examples](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/tree/master/cosmos-examples) directory.
 
-Further Flink processing examples can be found on the
-[Apache Flink site](https://ci.apache.org/projects/flink/flink-docs-release-1.9/getting-started) and
-[Flink Connector Examples](https://fiware-cosmos-flink-examples.readthedocs.io/).
+Further Flink processing examples can be found on [Spark Connector Examples](https://fiware-cosmos-spark-examples.readthedocs.io/).
 
 ### Compiling a JAR file for Spark
 
