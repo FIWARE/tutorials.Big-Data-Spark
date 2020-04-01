@@ -341,7 +341,7 @@ curl -iX POST \
   },
   "notification": {
     "http": {
-    "url": "http://spark-master:9001
+    "url": "http://spark-master:9001"
   }
 }'
 ```
