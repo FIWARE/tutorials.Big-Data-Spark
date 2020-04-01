@@ -244,7 +244,7 @@ into a JAR file which can be uploaded to the spark cluster. Two examples will be
 this tutorial can be found within the
 [cosmos-examples](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/tree/master/cosmos-examples) directory.
 
-Further Flink processing examples can be found on [Spark Connector Examples](https://fiware-cosmos-spark-examples.readthedocs.io/).
+Further Spark processing examples can be found on [Spark Connector Examples](https://fiware-cosmos-spark-examples.readthedocs.io/).
 
 ### Compiling a JAR file for Spark
 
@@ -464,7 +464,7 @@ object Logger{
 
 The first lines of the program are aimed at importing the necessary dependencies, including the connector. The next step
 is to create an instance of the `OrionReceiver` using the class provided by the connector and to add it to the environment
-provided by Flink.
+provided by Spark.
 
 The `OrionSource` constructor accepts a port number (`9001`) as a parameter. This port is used to listen to the
 subscription notifications coming from Orion and converted to a `DataStream` of `NgsiEvent` objects. The definition of
@@ -493,7 +493,7 @@ processedDataStream.print()
 
 #### Logger - NGSI-LD:
 
-The same example is provided for data in the NGSI LD format (LoggerLD.scala). This example makes use of the NGSILDSource provided by the Orion Flink Connector in order to receive messages in the NGSI LD format. The only part of the code that changes is the declaration of the source: You can use
+The same example is provided for data in the NGSI LD format (LoggerLD.scala). This example makes use of the NGSILDSource provided by the Orion Spark Connector in order to receive messages in the NGSI LD format. The only part of the code that changes is the declaration of the source: You can use
 
 ```scala
 ...
