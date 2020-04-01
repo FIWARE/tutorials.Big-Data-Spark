@@ -126,6 +126,9 @@ Therefore the overall architecture will consist of the following elements:
 spark-master:
     image: bde2020/spark-master:2.4.5-hadoop2.7
     container_name: spark-master
+    expose:
+      - "8080"
+      - "9001"
     ports:
       - "8080:8080"
       - "7077:7077"
