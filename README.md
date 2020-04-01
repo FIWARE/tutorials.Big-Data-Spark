@@ -226,18 +226,6 @@ To start the system, run the following command:
 
 # Real-time Processing Operations
 
-Dataflow within **Apache Flink** is defined within the
-[Flink documentation](https://ci.apache.org/projects/flink/flink-docs-release-1.9/concepts/programming-model.html) as
-follows:
-
-> "The basic building blocks of Flink programs are streams and transformations. Conceptually a stream is a (potentially
-> never-ending) flow of data records, and a transformation is an operation that takes one or more streams as input, and
-> produces one or more output streams as a result.
->
-> When executed, Flink programs are mapped to streaming dataflows, consisting of streams and transformation operators.
-> Each dataflow starts with one or more sources and ends in one or more sinks. The dataflows resemble arbitrary directed
-> acyclic graphs (DAGs). Although special forms of cycles are permitted via iteration constructs, for the most part this
-> can be glossed over this for simplicity."
 
 ![](https://fiware.github.io/tutorials.Big-Data-Analysis/img/streaming-dataflow.png)
 
@@ -247,11 +235,11 @@ This means that to create a streaming data flow we must supply the following:
 -   Business logic to define the transform operations
 -   A mechanism for pushing Context data back to the context broker as a **Sink Operator**
 
-The `orion-flink.connect.jar` offers both **Source** and **Sink** operations. It therefore only remains to write the
+The `orion-spark.connect.jar` offers both **Source** and **Sink** operations. It therefore only remains to write the
 necessary Scala code to connect the streaming dataflow pipeline operations together. The processing code can be complied
-into a JAR file which can be uploaded to the flink cluster. Two examples will be detailed below, all the source code for
+into a JAR file which can be uploaded to the spark cluster. Two examples will be detailed below, all the source code for
 this tutorial can be found within the
-[cosmos-examples](https://github.com/FIWARE/tutorials.Big-Data-Analysis/tree/master/cosmos-examples) directory.
+[cosmos-examples](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/tree/master/cosmos-examples) directory.
 
 Further Flink processing examples can be found on the
 [Apache Flink site](https://ci.apache.org/projects/flink/flink-docs-release-1.9/getting-started) and
@@ -306,7 +294,11 @@ find the source code of the example in
 Run in console the following command:
 
 ```console
-spark-submit  --class  org.fiware.cosmos.orion.spark.connector.tutorial.Logger --master  spark://spark-master:7077 --deploy-mode client ./cosmos-examples/target/cosmos-examples-1.0.jar --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
+spark-submit \
+--class  org.fiware.cosmos.orion.spark.connector.tutorial.Logger \
+--master  spark://spark-master:7077 \
+--deploy-mode client ./cosmos-examples/target/cosmos-examples-1.0.jar \ 
+--conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 
 ### Logger - Subscribing to context changes
