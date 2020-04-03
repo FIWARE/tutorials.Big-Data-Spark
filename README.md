@@ -265,7 +265,7 @@ Maven:
 ```console
 cd cosmos-examples
 mvn install:install-file \
-  -Dfile=./cosmos-examples-1.2.1.jar \
+  -Dfile=./orion.spark.connector-1.2.1.jar \
   -DgroupId=org.fiware.cosmos \
   -DartifactId=tutorial \
   -Dversion=1.2.1 \
