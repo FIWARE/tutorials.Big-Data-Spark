@@ -128,8 +128,10 @@ Therefore the overall architecture will consist of the following elements:
         -   makes requests to publicly available data sources using their own APIs in a proprietary format
         -   returns context data back to the Orion Context Broker in
             [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
+            
+The overall architecture can be seen below:
 
-![](https://raw.githubusercontent.com/ging/fiware-cosmos-orion-spark-connector-tutorial/master/img/Tutorial%20FIWARE%20FSpark.png)
+![](https://raw.githubusercontent.com/ging/fiware-cosmos-orion-spark-connector-tutorial/master/img/Tutorial%20FIWARE%20Spark.png)
 
 
 ## Spark Cluster Configuration
