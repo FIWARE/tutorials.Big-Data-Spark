@@ -163,11 +163,11 @@ spark-worker-1:
 The `spark-master` container is listening on three ports:
 
 -   Port `8080` is exposed so we can see the web frontend of the Apache Spark-Master Dashboard.
--   Port `9001` is exposed so that the installation can receive context data subscriptions.
 -   Port `7070` is used for internal communications.
 
 The `spark-worker-1` container is listening on one port:
 
+-   Port `9001` is exposed so that the installation can receive context data subscriptions.
 -   Ports `8081` is exposed so we can see the web frontend of the Apache Spark-Worker-1 Dashboard.
 
 # Prerequisites
@@ -215,11 +215,9 @@ Before you start, you should ensure that you have obtained or built the necessar
 
   
 ```bash
-
 git clone https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial.git
 cd fiware-cosmos-orion-spark-connector-tutorial
 ./services create
-
 ```
 This command will also import seed data from the previous tutorials and provision the dummy IoT sensors on startup.
 
@@ -259,10 +257,9 @@ Further Spark processing examples can be found on [Spark Connector Examples](htt
 
 An existing `pom.xml` file has been created which holds the necessary prerequisites to build the examples JAR file
 
-In order to use the Orion Spark Connector we first need to manually install the connector JAR as an artifact using
-Maven:
+In order to use the Orion Spark Connector we first need to manually install the connector JAR as an artifact using Maven:
 
-```console
+```bash
 cd cosmos-examples
 mvn install:install-file \
   -Dfile=./orion.spark.connector-1.2.1.jar \
@@ -282,30 +279,23 @@ A new JAR file called `cosmos-examples-1.2.1.jar` will be created within the `co
 
 ### Generating a stream of Context Data
 
-For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated. The
-dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor` and
-unlock a **Smart Door** and switch on a **Smart Lamp**. This can be done by selecting an appropriate the command from
-the drop down list and pressing the `send` button. The stream of measurements coming from the devices can then be seen
-on the same page:
+For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated. The dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor` and unlock a **Smart Door** and switch on a **Smart Lamp**. This can be done by selecting an appropriate the command from the drop down list and pressing the `send` button. The stream of measurements coming from the devices can then be seen on the same page:
 
 ![](https://fiware.github.io/tutorials.Historic-Context-NIFI/img/door-open.gif)
   
 
-## Example 1: Receiving data and performing operations
+## Logger - Reading Context Data Streams
 
-The first example makes use of the `OrionReceiver` operator in order to receive notifications from the Orion Context
-Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can
-find the source code of the example in
-[org/fiware/cosmos/tutorial/Logger.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Logger.scala)
+The first example makes use of the `OrionReceiver` operator in order to receive notifications from the Orion Context Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can find the source code of the example in [org/fiware/cosmos/tutorial/Logger.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Logger.scala)
 
 ### Logger - Installing the JAR
 
-Access the worker container
-````console
+Access the worker container:
+````bash
 sudo docker exec -it spark-worker-1 bin/bash
 ````
-And run the following command to run the JAR package generated in the Spark cluster:
-```console
+And run the following command to run the generated JAR package  in the Spark cluster:
+```bash
 /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.Logger \
 --master  spark://spark-master:7077 \
@@ -495,9 +485,11 @@ processedDataStream.print()
 
 #### Logger - NGSI-LD:
 
-The same example is provided for data in the NGSI LD format (`LoggerLD.scala``). This example makes use of the NGSILDReceiver provided by the Orion Spark Connector in order to receive messages in the NGSI LD format. The only part of the code that changes is the declaration of the source: 
+The same example is provided for data in the NGSI LD format (`LoggerLD.scala`). This example makes use of the NGSILDReceiver provided by the Orion Spark Connector in order to receive messages in the NGSI LD format. The only part of the code that changes is the declaration of the receiver: 
 
 ```scala
+...
+import org.fiware.cosmos.orion.spark.connector.NGSILDReceiver
 ...
 val eventStream = env.addSource(new NGSILDReceiver(9001))
 ...
@@ -559,6 +551,12 @@ curl -iX POST \
   }
 }'
 ```
+### Feedback Loop - Checking the Output
+
+Go to `http://localhost:3000/device/monitor`
+
+Within any Store, unlock the door and wait. Once the door opens and the Motion sensor is triggered, the lamp will switch
+on directly
 
 ### Feedback Loop - Analyzing the Code
 
@@ -569,11 +567,6 @@ import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.fiware.cosmos.orion.spark.connector._
 
-/**
-  * Feedback - Orion Spark Connector Tutorial
-  *
-  * @author @Javierlj
-  */
 object Feedback {
   final val CONTENT_TYPE = ContentType.JSON
   final val METHOD = HTTPMethod.PATCH
