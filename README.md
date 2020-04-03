@@ -31,7 +31,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
     -   [Cygwin for Windows](#cygwin-for-windows)
 -   [Start Up](#start-up)
 -   [Real-time Processing Operations](#real-time-processing-operations)
-    -   [Compiling a JAR file for Spark](#compiling-a-jar-file-for-flink)
+    -   [Compiling a JAR file for Spark](#compiling-a-jar-file-for-spark)
     -   [Generating a stream of Context Data](#generating-a-stream-of-context-data)
     -   [Logger - Reading Context Data Streams](#logger---reading-context-data-streams)
         -   [Logger - Installing the JAR](#logger---installing-the-jar)
@@ -128,6 +128,9 @@ Therefore the overall architecture will consist of the following elements:
         -   makes requests to publicly available data sources using their own APIs in a proprietary format
         -   returns context data back to the Orion Context Broker in
             [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
+
+![](https://raw.githubusercontent.com/ging/fiware-cosmos-orion-spark-connector-tutorial/master/img/Tutorial%20FIWARE%20FSpark.png)
+
 
 ## Spark Cluster Configuration
 
@@ -237,7 +240,14 @@ To start the system, run the following command:
 # Real-time Processing Operations
 
 
-![](https://fiware.github.io/tutorials.Big-Data-Analysis/img/streaming-dataflow.png)
+> According to Spark's documentation, Spark Streaming is an extension of the core Spark API that enables scalable, high-throughput, fault-tolerant stream processing of live data streams. Data can be ingested from many sources like Kafka, Flume, Kinesis, or TCP sockets, and can be processed using complex algorithms expressed with high-level functions like map, reduce, join and window. Finally, processed data can be pushed out to filesystems, databases, and live dashboards. In fact, you can apply Spark’s machine learning and graph processing algorithms on data streams.
+
+![](https://spark.apache.org/docs/latest/img/streaming-arch.png)
+
+> Internally, it works as follows. Spark Streaming receives live input data streams and divides the data into batches, which are then processed by the Spark engine to generate the final stream of results in batches.
+
+![](https://spark.apache.org/docs/latest/img/streaming-flow.png)
+
 
 This means that to create a streaming data flow we must supply the following:
 
@@ -245,7 +255,7 @@ This means that to create a streaming data flow we must supply the following:
 -   Business logic to define the transform operations
 -   A mechanism for pushing Context data back to the context broker as a **Sink Operator**
 
-The `orion-spark.connect.jar` offers both **Source** and **Sink** operators. It therefore only remains to write the
+The `orion.spark.connector-1.2.1.jar` offers both **Source** and **Sink** operators. It therefore only remains to write the
 necessary Scala code to connect the streaming dataflow pipeline operations together. The processing code can be complied
 into a JAR file which can be uploaded to the spark cluster. Two examples will be detailed below, all the source code for
 this tutorial can be found within the
@@ -271,7 +281,7 @@ mvn install:install-file \
 
 Thereafter the source code can be compiled by running the `mvn package` command within the same directory (`cosmos-examples`):
 
-```console
+```bash
 mvn package
 ```
 
@@ -320,7 +330,7 @@ Open another terminal and run the following command:
 
 #### :one: Request:
 
-```console
+```bash
 curl -iX POST \
   'http://localhost:1026/v2/subscriptions' \
   -H 'Content-Type: application/json' \
@@ -350,7 +360,7 @@ If a subscription has been created, we can check to see if it is firing by makin
 
 #### :two: Request:
 
-```console
+```bash
 curl -X GET \
 'http://localhost:1026/v2/subscriptions/' \
 -H 'fiware-service: openiot' \
@@ -497,7 +507,7 @@ val eventStream = env.addSource(new NGSILDReceiver(9001))
 
 In order to run this job, you need to user the spark-submit command again, specifying the `LoggerLD` class instead of `Logger`:
 
-```console
+```bash
 /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.LoggerLD \
 --master  spark://spark-master:7077 \
@@ -518,7 +528,7 @@ find the source code of the example in
 
 ### Feedback Loop - Installing the JAR
 
-```console
+```bash
 spark-submit  --class  org.fiware.cosmos.tutorial.Feedback --master  spark://spark-master:7077 --deploy-mode client ./cosmos-examples/target/cosmos-examples-1.2.1.jar --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 ### Feedback Loop - Subscribing to context changes
@@ -529,7 +539,7 @@ up to only trigger a notification when a motion sensor detects movement.
 > **Note:** If the previous subscription already exists, this step creating a second narrower Motion-only subscription
 > is unnecessary. There is a filter within the business logic of the scala task itself.
 
-```console
+```bash
 curl -iX POST \
   'http://localhost:1026/v2/subscriptions' \
   -H 'Content-Type: application/json' \
@@ -617,7 +627,11 @@ The arguments of the **`OrionSinkObject`** are:
 
 # Next Steps
 
+If you would rather use Flink as your data processing engine, we have [this tutorial available for Flink](https://github.com/ging/tutorials.Big-Data-Analysis) as well
+
+
 The operations performed on data in this tutorial were very simple. If you would like to know how to set up a scenario for performing real-time predictions using Machine Learning check out the [demo](https://github.com/ging/fiware-global-summit-berlin-2019-ml/) presented at the FIWARE Global Summit in Berlin (2019).
+
 
 If you want to learn how to add more complexity to your application by adding advanced features, you can find out by reading
 the other [tutorials in this series](https://fiware-tutorials.rtfd.io)
