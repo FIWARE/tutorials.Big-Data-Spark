@@ -1,7 +1,10 @@
 package org.fiware.cosmos.tutorial
+
+
 import org.apache.spark._
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.fiware.cosmos.orion.spark.connector._
+
 /**
   * Feedback Example Orion Connector
   * @author @Javierlj
@@ -27,9 +30,10 @@ object Feedback {
       .window(Seconds(60))
 
     val sinkStream= processedDataStream.map(sensor => {
-      val url="http://localhost:1026/v2/entities/Lamp:"+sensor.id.takeRight(3)+"/attrs"
-      OrionSinkObject(CONTENT,url,CONTENT_TYPE,METHOD,HEADERS)
-    })
+      OrionSinkObject(CONTENT,"http://orion:1026/v2/entities/Lamp:"+sensor.id.takeRight(3)+"/attrs",CONTENT_TYPE,METHOD,HEADERS)
+    });
+
+
     // Add Orion Sink
     OrionSink.addSink( sinkStream )
 

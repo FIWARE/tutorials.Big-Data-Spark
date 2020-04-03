@@ -529,7 +529,7 @@ find the source code of the example in
 ### Feedback Loop - Installing the JAR
 
 ```bash
-spark-submit  --class  org.fiware.cosmos.tutorial.Feedback --master  spark://spark-master:7077 --deploy-mode client ./cosmos-examples/target/cosmos-examples-1.2.1.jar --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
+/spark/bin/spark-submit  --class  org.fiware.cosmos.tutorial.Feedback --master  spark://spark-master:7077 --deploy-mode client /home/cosmos-examples-1.2.1.jar --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 ### Feedback Loop - Subscribing to context changes
 
