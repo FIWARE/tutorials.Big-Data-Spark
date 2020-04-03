@@ -1,4 +1,4 @@
-job/target
-job/.idea
-/.idea
+cosmos-examples/target
+cosmos-examples/.idea
+.idea
 *.iml

@@ -1,21 +1,19 @@
-package org.fiware.cosmos.orion.spark.connector.tutorial.example1
-
-
+package org.fiware.cosmos.tutorial
 import org.apache.spark._
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.fiware.cosmos.orion.spark.connector._
 /**
-  * Example1 Orion Spark Tutorial
+  * Logger example NGSILD Connector
   * @author @Javierlj
   */
-object Example1{
+object LoggerLD{
 
   def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf().setMaster("local[4]").setAppName("Example 1")
-    val ssc = new StreamingContext(conf, Seconds(10))
-    // Create Orion Source. Receive notifications on port 9001
-    val eventStream = ssc.receiverStream(new OrionReceiver(9001))
+    val conf = new SparkConf().setAppName("Example 1")
+    val ssc = new StreamingContext(conf, Seconds(60))
+    // Create Orion Receiver. Receive notifications on port 9001
+    val eventStream = ssc.receiverStream(new NGSILDReceiver(9001))
 
     // Process event stream
     eventStream
@@ -24,7 +22,7 @@ object Example1{
         new Sensor(ent.`type`)
       })
       .countByValue()
-      .window(Seconds(10))
+      .window(Seconds(60))
       .print()
 
 

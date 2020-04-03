@@ -22,7 +22,7 @@ under the License.
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.fiware.cosmos</groupId>
-	<artifactId>orion.spark.connector.tutorial</artifactId>
+	<artifactId>cosmos-examples</artifactId>
 	<version>1.2.1</version>
 	<packaging>jar</packaging>
 
@@ -152,7 +152,7 @@ under the License.
 							</filters>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>flinknetty.StreamingJob</mainClass>
+									<mainClass>org.fiware.cosmos.tutorial.Logger</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>

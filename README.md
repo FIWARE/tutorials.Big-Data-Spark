@@ -12,33 +12,42 @@
 This tutorial is an introduction to the [FIWARE Cosmos Orion Spark Connector](http://fiware-cosmos-spark.rtfd.io), which enables easier Big Data analysis over context, integrated with one of the most popular BigData platforms: [Apache Spark](https://spark.apache.org/). Apache Spark is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams. Spark has been designed to run in all common cluster environments, perform computations at in-memory speed and at any scale.
 
   
-The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as [Postman documentation](https://fiware.github.io/tutorials.Historic-Context-NIFI/)
-
+The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as Postman documentation:
   
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://www.getpostman.com/collections/b8bd8e88b69c49fdfbc7)
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://www.getpostman.com/collections/9e508e30f737e7db4fa9)
 
   
 ## Contents
 
 <details>
-
 <summary><strong>Details</strong></summary>
 
-  
--  [Real-time Processing of Historic Context Information using Apache Spark](#real-time-processing-of-historic-context-information-using-apache-spark)
--  [Architecture](#architecture)
--  [Prerequisites](#prerequisites)
--  [Docker and Docker Compose](#docker-and-docker-compose)
--  [Cygwin for Windows](#cygwin-for-windows)
--  [Start Up](#start-up)
--  [Example 1: Receiving data and preforming operations](#example-1-receiving-data-and-performing-operations)
--  [Example 2: Receiving data, performing operations and writing back to the Context Broker](#example-2--receiving-data-performing-operations-and-writing-back-to-the-context-broker)
+-   [Real-time Processing and Big Data Analysis](#real-time-processing-and-big-data-analysis)
+-   [Architecture](#architecture)
+    -   [Spark Cluster Configuration](#spark-cluster-configuration)
+-   [Prerequisites](#prerequisites)
+    -   [Docker and Docker Compose](#docker-and-docker-compose)
+    -   [Maven](#maven)
+    -   [Cygwin for Windows](#cygwin-for-windows)
+-   [Start Up](#start-up)
+-   [Real-time Processing Operations](#real-time-processing-operations)
+    -   [Compiling a JAR file for Spark](#compiling-a-jar-file-for-flink)
+    -   [Generating a stream of Context Data](#generating-a-stream-of-context-data)
+    -   [Logger - Reading Context Data Streams](#logger---reading-context-data-streams)
+        -   [Logger - Installing the JAR](#logger---installing-the-jar)
+        -   [Logger - Subscribing to context changes](#logger---subscribing-to-context-changes)
+        -   [Logger - Checking the Output](#logger---checking-the-output)
+        -   [Logger - Analyzing the Code](#logger---analyzing-the-code)
+    -   [Feedback Loop - Persisting Context Data](#feedback-loop---persisting-context-data)
+        -   [Feedback Loop - Installing the JAR](#feedback-loop---installing-the-jar)
+        -   [Feedback Loop - Subscribing to context changes](#feedback-loop---subscribing-to-context-changes)
+        -   [Feedback Loop - Checking the Output](#feedback-loop---checking-the-output)
+        -   [Feedback Loop - Analyzing the Code](#feedback-loop---analyzing-the-code)
 
 </details>
-
   
 
-# Real-time Processing of Historic Context Information using Apache Spark
+# Real-time Processing and Big Data Analysis
 
 
 > "Who controls the past controls the future: who controls the present controls the past."
@@ -49,7 +58,7 @@ Smart solutions based on FIWARE are architecturally designed around microservice
 scale-up from simple applications (such as the Supermarket tutorial) through to city-wide installations base on a large
 array of IoT sensors and other context data providers.
 
-The massive amount of data involved enventually becomes too much for a single machine to analyse, process and store, and
+The massive amount of data involved eventually becomes too much for a single machine to analyse, process and store, and
 therefore the work must be delegated to additional distributed services. These distributed systems form the basis of
 so-called **Big Data Analysis**. The distribution of tasks allows developers to be able to extract insights from huge
 data sets which would be too complex to be dealt with using traditional methods. and uncover hidden patterns and
@@ -61,13 +70,13 @@ installations, each subscription event can be processed one-by-one by a single r
 grows, another technique will be required to avoid overwhelming the listener, potentially blocking resources and missing
 updates.
 
-**Apache Spark** is a Java/Scala based stream-processing framework which enables the delegation of data-flow processes.
-Therefore additional computational resources can be called upon to deal with data as events arrive. The **Cosmos Spark**
-connector allows developers write custom business logic to listen for context data subscription events and then process
+**Apache Spark** is an open-source distributed general-purpose cluster-computing framework. 
+It provides an interface for programming entire clusters with implicit data parallelism and fault tolerance. 
+The **Cosmos Spark** connector allows developers write custom business logic to listen for context data subscription events and then process
 the flow of the context data. Spark is able to delegate these actions to other workers where they will be acted upon
 either in sequentiallly or in parallel as required. The data flow processing itself can be arbitrarily complex.
 
-Obviously in reality our existing Supermarket scenario is far too small to require the use of a Big Data solution, but
+Obviously, in reality, our existing Supermarket scenario is far too small to require the use of a Big Data solution, but
 will serve as a basis for demonstrating the type of real-time processing which may be required in a larger solution
 which is processing a continuous stream of context-data events.
 
@@ -238,7 +247,7 @@ This means that to create a streaming data flow we must supply the following:
 -   Business logic to define the transform operations
 -   A mechanism for pushing Context data back to the context broker as a **Sink Operator**
 
-The `orion-spark.connect.jar` offers both **Source** and **Sink** operations. It therefore only remains to write the
+The `orion-spark.connect.jar` offers both **Source** and **Sink** operators. It therefore only remains to write the
 necessary Scala code to connect the streaming dataflow pipeline operations together. The processing code can be complied
 into a JAR file which can be uploaded to the spark cluster. Two examples will be detailed below, all the source code for
 this tutorial can be found within the
@@ -256,21 +265,20 @@ Maven:
 ```console
 cd cosmos-examples
 mvn install:install-file \
-  -Dfile=./orion.spark.connector-1.2.1.jar \
+  -Dfile=./cosmos-examples-1.2.1.jar \
   -DgroupId=org.fiware.cosmos \
-  -DartifactId=orion.spark.connector \
+  -DartifactId=tutorial \
   -Dversion=1.2.1 \
   -Dpackaging=jar
 ```
 
-Thereafter the source code can be compiled by running the `mvn package` command within the same directory:
+Thereafter the source code can be compiled by running the `mvn package` command within the same directory (`cosmos-examples`):
 
 ```console
-cd cosmos-examples
 mvn package
 ```
 
-A new JAR file called `cosmos-examples-1.1.jar` will be created within the `cosmos-examples/target` directory.
+A new JAR file called `cosmos-examples-1.2.1.jar` will be created within the `cosmos-examples/target` directory.
 
 ### Generating a stream of Context Data
 
@@ -285,26 +293,29 @@ on the same page:
 
 ## Example 1: Receiving data and performing operations
 
-The first example makes use of the `OrionSource` operator in order to receive notifications from the Orion Context
+The first example makes use of the `OrionReceiver` operator in order to receive notifications from the Orion Context
 Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can
 find the source code of the example in
 [org/fiware/cosmos/tutorial/Logger.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Logger.scala)
 
 ### Logger - Installing the JAR
 
-Run in console the following command:
-
+Access the worker container
+````console
+sudo docker exec -it spark-worker-1 bin/bash
+````
+And run the following command to run the JAR package generated in the Spark cluster:
 ```console
-spark-submit \
---class  org.fiware.cosmos.orion.spark.connector.tutorial.Logger \
+/spark/bin/spark-submit \
+--class  org.fiware.cosmos.tutorial.Logger \
 --master  spark://spark-master:7077 \
---deploy-mode client ./cosmos-examples/target/cosmos-examples-1.0.jar \ 
+--deploy-mode client /home/cosmos-examples-1.2.1.jar \ 
 --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 
 ### Logger - Subscribing to context changes
 
-Once a dynamic context system is up and running (execute `Logger`), we need to inform **Spark** of changes in context.
+Once a dynamic context system is up and running (we have deployed the `Logger` job in the Spark cluster), we need to inform **Spark** of changes in context.
 
 This is done by making a POST request to the `/v2/subscription` endpoint of the Orion Context Broker.
 
@@ -314,6 +325,8 @@ This is done by making a POST request to the `/v2/subscription` endpoint of the 
 -   The notification `url` must match the one our Spark program is listening to.
 
 -   The `throttling` value defines the rate that changes are sampled.
+
+Open another terminal and run the following command:
 
 #### :one: Request:
 
@@ -334,7 +347,8 @@ curl -iX POST \
   },
   "notification": {
     "http": {
-    "url": "http://spark-master:9001"
+        "url": "http://spark-worker-1:9001"
+    }
   }
 }'
 ```
@@ -377,7 +391,7 @@ curl -X GET \
             "attrs": [],
             "attrsFormat": "normalized",
             "http": {
-                "url": "http://spark-master:9001"
+                "url": "http://spark-worker-1:9001"
             },
             "lastSuccess": "2019-09-09T09:36:33.00Z",
             "lastSuccessCode": 200
@@ -404,14 +418,7 @@ Finally, check that the `status` of the subscription is `active` - an expired su
 
 ### Logger - Checking the Output
 
-Leave the subscription running for **one minute**, then run the following:
-
-```console
-docker logs spark-master -f --until=60s > stdout.log 2>stderr.log
-cat stderr.log
-```
-
-After creating the subscription, the output on the console will be like the following:
+Leave the subscription running for **one minute**. Then, the output on the console on which you ran the Spark job will be like the following:
 
 ```text
 Sensor(Bell,3)
@@ -424,24 +431,19 @@ Sensor(Motion,6)
 
 ```scala 
 
-package org.fiware.cosmos.orion.spark.connector.tutorial
+package org.fiware.cosmos.tutorial
 
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.fiware.cosmos.orion.spark.connector.OrionReceiver
 
-/**
-  * Example1 Orion Spark Tutorial
- *
-  * @author @Javierlj
-  */
 object Logger{
 
   def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf().setMaster("local[4]").setAppName("Logger")
-    val ssc = new StreamingContext(conf, Seconds(5))
-    // Create Orion Source. Receive notifications on port 9001
+    val conf = new SparkConf().setAppName("Logger")
+    val ssc = new StreamingContext(conf, Seconds(60))
+    // Create Orion Receiver. Receive notifications on port 9001
     val eventStream = ssc.receiverStream(new OrionReceiver(9001))
 
     // Process event stream
@@ -451,7 +453,7 @@ object Logger{
         new Sensor(ent.`type`)
       })
       .countByValue()
-      .window(Seconds(10))
+      .window(Seconds(60))
 
     processedDataStream.print()
 
@@ -466,10 +468,10 @@ The first lines of the program are aimed at importing the necessary dependencies
 is to create an instance of the `OrionReceiver` using the class provided by the connector and to add it to the environment
 provided by Spark.
 
-The `OrionSource` constructor accepts a port number (`9001`) as a parameter. This port is used to listen to the
+The `OrionReceiver` constructor accepts a port number (`9001`) as a parameter. This port is used to listen to the
 subscription notifications coming from Orion and converted to a `DataStream` of `NgsiEvent` objects. The definition of
 these objects can be found within the
-[Orion-Spark Connector documentation](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionsource).
+[Orion-Spark Connector documentation](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionreceiver).
 
 The stream processing consists of five separate steps. The first step (`flatMap()`) is performed in order to put
 together the entity objects of all the NGSI Events received in a period of time. Thereafter the code iterates over them
@@ -493,13 +495,24 @@ processedDataStream.print()
 
 #### Logger - NGSI-LD:
 
-The same example is provided for data in the NGSI LD format (LoggerLD.scala). This example makes use of the NGSILDSource provided by the Orion Spark Connector in order to receive messages in the NGSI LD format. The only part of the code that changes is the declaration of the source: You can use
+The same example is provided for data in the NGSI LD format (`LoggerLD.scala``). This example makes use of the NGSILDReceiver provided by the Orion Spark Connector in order to receive messages in the NGSI LD format. The only part of the code that changes is the declaration of the source: 
 
 ```scala
 ...
 val eventStream = env.addSource(new NGSILDReceiver(9001))
 ...
 ```
+
+In order to run this job, you need to user the spark-submit command again, specifying the `LoggerLD` class instead of `Logger`:
+
+```console
+/spark/bin/spark-submit \
+--class  org.fiware.cosmos.tutorial.LoggerLD \
+--master  spark://spark-master:7077 \
+--deploy-mode client /home/cosmos-examples-1.2.1.jar \ 
+--conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
+````
+
 
 ## Feedback Loop - Persisting Context Data
 
@@ -514,7 +527,7 @@ find the source code of the example in
 ### Feedback Loop - Installing the JAR
 
 ```console
-spark-submit  --class  org.fiware.cosmos.orion.spark.connector.tutorial.Feedback --master  spark://spark-master:7077 --deploy-mode client ./cosmos-examples/target/cosmos-examples-1.0.jar --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
+spark-submit  --class  org.fiware.cosmos.tutorial.Feedback --master  spark://spark-master:7077 --deploy-mode client ./cosmos-examples/target/cosmos-examples-1.2.1.jar --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 ### Feedback Loop - Subscribing to context changes
 
@@ -541,7 +554,7 @@ curl -iX POST \
   },
   "notification": {
     "http": {
-      "url": "http://spark-master:9001"
+      "url": "http://spark-worker-1:9001"
     }
   }
 }'
@@ -550,7 +563,7 @@ curl -iX POST \
 ### Feedback Loop - Analyzing the Code
 
 ```scala
-package org.fiware.cosmos.orion.spark.connector.tutorial
+package org.fiware.cosmos.tutorial
 
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
@@ -569,9 +582,9 @@ object Feedback {
 
   def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf().setMaster("local[4]").setAppName("Feedback")
+    val conf = new SparkConf().setAppName("Feedback")
     val ssc = new StreamingContext(conf, Seconds(10))
-    // Create Orion Source. Receive notifications on port 9001
+    // Create Orion Receiver. Receive notifications on port 9001
     val eventStream = ssc.receiverStream(new OrionReceiver(9001))
 
     // Process event stream
@@ -611,7 +624,9 @@ The arguments of the **`OrionSinkObject`** are:
 
 # Next Steps
 
-Want to learn how to add more complexity to your application by adding advanced features? You can find out by reading
+The operations performed on data in this tutorial were very simple. If you would like to know how to set up a scenario for performing real-time predictions using Machine Learning check out the [demo](https://github.com/ging/fiware-global-summit-berlin-2019-ml/) presented at the FIWARE Global Summit in Berlin (2019).
+
+If you want to learn how to add more complexity to your application by adding advanced features, you can find out by reading
 the other [tutorials in this series](https://fiware-tutorials.rtfd.io)
 
 ---

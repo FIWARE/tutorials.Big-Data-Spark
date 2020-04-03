@@ -1,14 +1,12 @@
-package org.fiware.cosmos.orion.spark.connector.tutorial.example2
-
-
+package org.fiware.cosmos.tutorial
 import org.apache.spark._
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.fiware.cosmos.orion.spark.connector._
 /**
-  * Example2 Orion Spark Connector Tutorial
+  * Feedback Example Orion Connector
   * @author @Javierlj
   */
-object Example2 {
+object Feedback {
   final val CONTENT_TYPE = ContentType.JSON
   final val METHOD = HTTPMethod.PATCH
   final val CONTENT = "{\n  \"on\": {\n      \"type\" : \"command\",\n      \"value\" : \"\"\n  }\n}"
@@ -16,9 +14,9 @@ object Example2 {
 
   def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf().setMaster("local[4]").setAppName("Temperature")
-    val ssc = new StreamingContext(conf, Seconds(10))
-    // Create Orion Source. Receive notifications on port 9001
+    val conf = new SparkConf().setAppName("Temperature")
+    val ssc = new StreamingContext(conf, Seconds(60))
+    // Create Orion Receiver. Receive notifications on port 9001
     val eventStream = ssc.receiverStream(new OrionReceiver(9001))
 
     // Process event stream
@@ -26,7 +24,7 @@ object Example2 {
       .flatMap(event => event.entities)
       .filter(entity=>(entity.attrs("count").value == "1"))
       .map(entity=> new Sensor(entity.id))
-      .window(Seconds(10))
+      .window(Seconds(60))
 
     val sinkStream= processedDataStream.map(sensor => {
       val url="http://localhost:1026/v2/entities/Lamp:"+sensor.id.takeRight(3)+"/attrs"
