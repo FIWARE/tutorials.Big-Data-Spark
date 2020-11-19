@@ -1,4 +1,5 @@
 cosmos-examples/target
 cosmos-examples/.idea
+cosmos-examples/orion.spark.connector-*.jar
 .idea
 *.iml
