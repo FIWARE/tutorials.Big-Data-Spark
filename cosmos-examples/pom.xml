@@ -46,8 +46,8 @@ under the License.
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spark.version>2.4.4</spark.version>
-		<scala.binary.version>2.12</scala.binary.version>
-		<scala.version>2.12.8</scala.version>
+		<scala.binary.version>2.11</scala.binary.version>
+		<scala.version>2.11.2</scala.version>
 		<play2.version>2.4.6</play2.version>
 	</properties>
 

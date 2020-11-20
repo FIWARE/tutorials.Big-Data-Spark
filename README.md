@@ -302,16 +302,19 @@ The first example makes use of the `OrionReceiver` operator in order to receive 
 
 ### Logger - Installing the JAR
 
-Access the worker container:
+Restart the containers if necessary, then access the worker container:
+
 ````console
-sudo docker exec -it spark-worker-1 bin/bash
+docker exec -it spark-worker-1 bin/bash
 ````
+
 And run the following command to run the generated JAR package  in the Spark cluster:
+
 ```console
 /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.Logger \
 --master  spark://spark-master:7077 \
---deploy-mode client /home/cosmos-examples-1.2.1.jar \
+--deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.1.jar \
 --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 

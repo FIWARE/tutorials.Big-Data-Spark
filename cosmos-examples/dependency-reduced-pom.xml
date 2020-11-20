@@ -167,7 +167,7 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_2.12</artifactId>
+      <artifactId>spark-core_2.11</artifactId>
       <version>2.4.4</version>
       <scope>provided</scope>
       <exclusions>
@@ -188,19 +188,19 @@
           <groupId>org.apache.hadoop</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>spark-launcher_2.12</artifactId>
+          <artifactId>spark-launcher_2.11</artifactId>
           <groupId>org.apache.spark</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>spark-kvstore_2.12</artifactId>
+          <artifactId>spark-kvstore_2.11</artifactId>
           <groupId>org.apache.spark</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>spark-network-common_2.12</artifactId>
+          <artifactId>spark-network-common_2.11</artifactId>
           <groupId>org.apache.spark</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>spark-network-shuffle_2.12</artifactId>
+          <artifactId>spark-network-shuffle_2.11</artifactId>
           <groupId>org.apache.spark</groupId>
         </exclusion>
         <exclusion>
@@ -256,7 +256,7 @@
           <groupId>commons-net</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>json4s-jackson_2.12</artifactId>
+          <artifactId>json4s-jackson_2.11</artifactId>
           <groupId>org.json4s</groupId>
         </exclusion>
         <exclusion>
@@ -308,7 +308,7 @@
           <groupId>io.dropwizard.metrics</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>jackson-module-scala_2.12</artifactId>
+          <artifactId>jackson-module-scala_2.11</artifactId>
           <groupId>com.fasterxml.jackson.module</groupId>
         </exclusion>
         <exclusion>
@@ -335,14 +335,14 @@
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-streaming_2.12</artifactId>
+      <artifactId>spark-streaming_2.11</artifactId>
       <version>2.4.4</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
-      <version>2.12.8</version>
+      <version>2.11.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -359,8 +359,8 @@
     </dependency>
   </dependencies>
   <properties>
-    <scala.version>2.12.8</scala.version>
-    <scala.binary.version>2.12</scala.binary.version>
+    <scala.version>2.11.2</scala.version>
+    <scala.binary.version>2.11</scala.binary.version>
     <play2.version>2.4.6</play2.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spark.version>2.4.4</spark.version>

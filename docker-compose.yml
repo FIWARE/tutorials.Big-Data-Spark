@@ -105,8 +105,8 @@ services:
       - "SPARK_MASTER=spark://spark-master:${SPARK_MASTER_PORT}"
       - "constraint:node==spark-master"
     volumes:
-      - ./cosmos-examples/target/cosmos-examples-1.2.1.jar:/home/cosmos-examples-1.2.1.jar
-      - ./log4j.properties:/spark/conf/log4j.properties
+      - ${PWD}/cosmos-examples/:/home/cosmos-examples/
+      - ${PWD}/log4j.properties:/spark/conf/log4j.properties
   # Database
   mongo-db:
     image: mongo:${MONGO_DB_VERSION}
