@@ -1,9 +1,9 @@
 
 [![FIWARE Banner](https://fiware.github.io/tutorials.Big-Data-Spark/img/fiware.png)](https://www.fiware.org/developers)
+[![NGSI v2](https://img.shields.io/badge/NGSI-v2-5dc0cf.svg)](https://fiware-ges.github.io/orion/api/v2/stable/)
 
 [![FIWARE Core Context Management](https://nexus.lab.fiware.org/static/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/processing/README.md)
-[![License: MIT](https://img.shields.io/github/core/fiware/tutorials.Big-Data-Spark.svg)](https://opensource.org/licenses/MIT)
-[![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](https://fiware-ges.github.io/orion/api/v2/stable/)
+[![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Big-Data-Spark.svg)](https://opensource.org/licenses/MIT)
 [![Support badge](https://nexus.lab.fiware.org/repository/raw/public/badges/stackoverflow/fiware.svg)](https://stackoverflow.com/questions/tagged/fiware)
 <br/>  [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
@@ -194,7 +194,7 @@ to follow the instructions found [here](https://docs.docker.com/compose/install/
 
 You can check your current **Docker** and **Docker Compose** versions using the following commands:
 
-```bash
+```console
 docker-compose -v
 docker version
 ```
@@ -214,27 +214,26 @@ to provide a command-line functionality similar to a Linux distribution on Windo
 
 # Start Up
 
-
-
 Before you start, you should ensure that you have obtained or built the necessary Docker images locally. Please clone the repository and create the necessary images by running the commands shown below. Note that you might need to run some of the commands as a privileged user:
 
 
-```bash
+```console
 git clone https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial.git
 cd fiware-cosmos-orion-spark-connector-tutorial
 ./services create
 ```
+
 This command will also import seed data from the previous tutorials and provision the dummy IoT sensors on startup.
 
 To start the system, run the following command:
 
-```bash
+```console
 ./services start
 ```
 
 > :information_source: **Note:** If you want to clean up and start over again you can do so with the following command:
 >
-> ```bash
+> ```console
 > ./services stop
 > ```
 
@@ -242,11 +241,11 @@ To start the system, run the following command:
 # Real-time Processing Operations
 
 
-> According to Spark's documentation, Spark Streaming is an extension of the core Spark API that enables scalable, high-throughput, fault-tolerant stream processing of live data streams. Data can be ingested from many sources like Kafka, Flume, Kinesis, or TCP sockets, and can be processed using complex algorithms expressed with high-level functions like map, reduce, join and window. Finally, processed data can be pushed out to filesystems, databases, and live dashboards. In fact, you can apply Spark’s machine learning and graph processing algorithms on data streams.
+According to the [Apache Spark documentation](https://spark.apache.org/documentation.html), Spark Streaming is an extension of the core Spark API that enables scalable, high-throughput, fault-tolerant stream processing of live data streams. Data can be ingested from many sources like Kafka, Flume, Kinesis, or TCP sockets, and can be processed using complex algorithms expressed with high-level functions like map, reduce, join and window. Finally, processed data can be pushed out to filesystems, databases, and live dashboards. In fact, you can apply Spark’s machine learning and graph processing algorithms on data streams.
 
 ![](https://spark.apache.org/docs/latest/img/streaming-arch.png)
 
-> Internally, it works as follows. Spark Streaming receives live input data streams and divides the data into batches, which are then processed by the Spark engine to generate the final stream of results in batches.
+Internally, it works as follows. Spark Streaming receives live input data streams and divides the data into batches, which are then processed by the Spark engine to generate the final stream of results in batches.
 
 ![](https://spark.apache.org/docs/latest/img/streaming-flow.png)
 
@@ -257,7 +256,7 @@ This means that to create a streaming data flow we must supply the following:
 -   Business logic to define the transform operations
 -   A mechanism for pushing Context data back to the context broker as a **Sink Operator**
 
-The `orion.spark.connector-1.2.1.jar` offers both **Source** and **Sink** operators. It therefore only remains to write the
+The **Cosmos Spark** connector - `orion.spark.connector-1.2.1.jar` offers both **Source** and **Sink** operators. It therefore only remains to write the
 necessary Scala code to connect the streaming dataflow pipeline operations together. The processing code can be complied
 into a JAR file which can be uploaded to the spark cluster. Two examples will be detailed below, all the source code for
 this tutorial can be found within the
@@ -271,19 +270,20 @@ An existing `pom.xml` file has been created which holds the necessary prerequisi
 
 In order to use the Orion Spark Connector we first need to manually install the connector JAR as an artifact using Maven:
 
-```bash
+```console
 cd cosmos-examples
+curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9/orion.spark.connector-1.2.1.jar
 mvn install:install-file \
   -Dfile=./orion.spark.connector-1.2.1.jar \
   -DgroupId=org.fiware.cosmos \
-  -DartifactId=tutorial \
+  -DartifactId=orion.spark.connector \
   -Dversion=1.2.1 \
   -Dpackaging=jar
 ```
 
 Thereafter the source code can be compiled by running the `mvn package` command within the same directory (`cosmos-examples`):
 
-```bash
+```console
 mvn package
 ```
 
@@ -303,11 +303,11 @@ The first example makes use of the `OrionReceiver` operator in order to receive 
 ### Logger - Installing the JAR
 
 Access the worker container:
-````bash
+````console
 sudo docker exec -it spark-worker-1 bin/bash
 ````
 And run the following command to run the generated JAR package  in the Spark cluster:
-```bash
+```console
 /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.Logger \
 --master  spark://spark-master:7077 \
@@ -332,7 +332,7 @@ Open another terminal and run the following command:
 
 #### :one: Request:
 
-```bash
+```console
 curl -iX POST \
   'http://localhost:1026/v2/subscriptions' \
   -H 'Content-Type: application/json' \
@@ -362,7 +362,7 @@ If a subscription has been created, we can check to see if it is firing by makin
 
 #### :two: Request:
 
-```bash
+```console
 curl -X GET \
 'http://localhost:1026/v2/subscriptions/' \
 -H 'fiware-service: openiot' \
@@ -509,7 +509,7 @@ val eventStream = env.addSource(new NGSILDReceiver(9001))
 
 In order to run this job, you need to user the spark-submit command again, specifying the `LoggerLD` class instead of `Logger`:
 
-```bash
+```console
 /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.LoggerLD \
 --master  spark://spark-master:7077 \
@@ -530,7 +530,7 @@ find the source code of the example in
 
 ### Feedback Loop - Installing the JAR
 
-```bash
+```console
 /spark/bin/spark-submit  --class  org.fiware.cosmos.tutorial.Feedback --master  spark://spark-master:7077 --deploy-mode client /home/cosmos-examples-1.2.1.jar --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 ### Feedback Loop - Subscribing to context changes
@@ -541,7 +541,7 @@ up to only trigger a notification when a motion sensor detects movement.
 > **Note:** If the previous subscription already exists, this step creating a second narrower Motion-only subscription
 > is unnecessary. There is a filter within the business logic of the scala task itself.
 
-```bash
+```console
 curl -iX POST \
   'http://localhost:1026/v2/subscriptions' \
   -H 'Content-Type: application/json' \
