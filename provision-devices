@@ -1,23 +1,11 @@
 #!/bin/bash
 #
-#  curl commands to reload the data from the previous tutorial
+#  curl -s -o /dev/null commands to reload the data from the previous tutorial
 #
 #
 
 set -e
 
-
-curl () {
-  docker run --network fiware_default --rm appropriate/curl -s \
-    "$@"
-}
-
-echo -e "⏳ Waiting for \033[1;36mIoT-Agent\033[0m to be available\n"
-while [ `curl -s -o /dev/null -w %{http_code} 'http://iot-agent:4041/iot/about/'` -eq 000 ]
-do 
-  echo -e "IoT Agent Server HTTP state: " `curl -s -o /dev/null -w %{http_code} 'http://iot-agent:4041/iot/about'` " (waiting for 200)"
-  sleep 1
-done
 printf "⏳ Provisioning IoT devices "
 
 
@@ -25,7 +13,7 @@ printf "⏳ Provisioning IoT devices "
 # Create a service group for all UltraLight IoT devices
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://iot-agent:4041/iot/services' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -47,7 +35,7 @@ curl -X POST \
 # Provision motion sensor 001
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://iot-agent:4041/iot/devices' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -135,7 +123,7 @@ curl -X POST \
 # Register Bell 001 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -161,7 +149,7 @@ curl -X POST \
 # Register Smart Door 001 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -187,7 +175,7 @@ curl -X POST \
 # Register Smart Lamp 001 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -216,7 +204,7 @@ curl -X POST \
 # Provision motion sensor 002
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://iot-agent:4041/iot/devices' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -304,7 +292,7 @@ curl -X POST \
 # Register Bell 002 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -330,7 +318,7 @@ curl -X POST \
 # Register Smart Door 002 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -356,7 +344,7 @@ curl -X POST \
 # Register Smart Lamp 002 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -385,7 +373,7 @@ curl -X POST \
 # Provision motion sensor 003
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://iot-agent:4041/iot/devices' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -473,7 +461,7 @@ curl -X POST \
 # Register Bell 003 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -499,7 +487,7 @@ curl -X POST \
 # Register Smart Door 003 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -525,7 +513,7 @@ curl -X POST \
 # Register Smart Lamp 003 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -554,7 +542,7 @@ curl -X POST \
 # Provision motion sensor 004
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://iot-agent:4041/iot/devices' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -642,7 +630,7 @@ curl -X POST \
 # Register Bell 004 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -668,7 +656,7 @@ curl -X POST \
 # Register Smart Door 004 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
@@ -694,7 +682,7 @@ curl -X POST \
 # Register Smart Lamp 004 commands with the Orion Context Broker
 #
 
-curl -X POST \
+curl -s -o /dev/null -X POST \
   'http://orion:1026/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \

@@ -8,13 +8,76 @@
 set -e
 
 loadData () {
-	./provision-devices
+	docker run --rm -v $(pwd)/import-data:/import-data \
+		--network fiware_default \
+		--entrypoint /bin/ash curlimages/curl import-data
+	waitForIoTAgent
+	docker run --rm -v $(pwd)/provision-devices:/provision-devices \
+		--network fiware_default \
+		--entrypoint /bin/ash curlimages/curl provision-devices
 	echo ""
 }
 
 stoppingContainers () {
 	echo "Stopping containers"
 	docker-compose --log-level ERROR -p fiware down -v --remove-orphans
+}
+
+displayServices () {
+	echo ""
+	docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" --filter name='[fiware|spark]-*'
+	echo ""
+}
+
+addDatabaseIndex () {
+	printf "Adding appropriate \033[1mMongoDB\033[0m indexes for \033[1;34mOrion\033[0m  ..."
+	docker exec  db-mongo mongo --eval '
+	conn = new Mongo();db.createCollection("orion");
+	db = conn.getDB("orion");
+	db.createCollection("entities");
+	db.entities.createIndex({"_id.servicePath": 1, "_id.id": 1, "_id.type": 1}, {unique: true});
+	db.entities.createIndex({"_id.type": 1}); 
+	db.entities.createIndex({"_id.id": 1});' > /dev/null
+
+	docker exec  db-mongo mongo --eval '
+	conn = new Mongo();db.createCollection("orion-openiot");
+	db = conn.getDB("orion-openiot");
+	db.createCollection("entities");
+	db.entities.createIndex({"_id.servicePath": 1, "_id.id": 1, "_id.type": 1}, {unique: true});
+	db.entities.createIndex({"_id.type": 1}); 
+	db.entities.createIndex({"_id.id": 1});' > /dev/null
+	echo -e " \033[1;32mdone\033[0m"
+
+	printf "Adding appropriate \033[1mMongoDB\033[0m indexes for \033[1;36mIoT-Agent\033[0m  ..."
+	docker exec  db-mongo mongo --eval '
+	conn = new Mongo();
+	db = conn.getDB("iotagentul");
+	db.createCollection("devices");
+	db.devices.createIndex({"_id.service": 1, "_id.id": 1, "_id.type": 1});
+	db.devices.createIndex({"_id.type": 1}); 
+	db.devices.createIndex({"_id.id": 1});
+	db.createCollection("groups");
+	db.groups.createIndex({"_id.resource": 1, "_id.apikey": 1, "_id.service": 1});
+	db.groups.createIndex({"_id.type": 1});' > /dev/null
+	echo -e " \033[1;32mdone\033[0m"
+}
+
+waitForOrion () {
+	echo -e "\n⏳ Waiting for \033[1;34mOrion\033[0m to be available\n"
+	while [ `docker run --network fiware_default --rm curlimages/curl -s -o /dev/null -w %{http_code} 'http://orion:1026/version'` -eq 000 ]
+	do 
+	  echo -e "Context Broker HTTP state: " `curl -s -o /dev/null -w %{http_code} 'http://localhost:1026/version'` " (waiting for 200)"
+	  sleep 1
+	done
+}
+
+waitForIoTAgent () {
+	echo -e "\n⏳ Waiting for \033[1;36mIoT-Agent\033[0m to be available\n"
+	while [ `docker run --network fiware_default --rm curlimages/curl -s -o /dev/null -w %{http_code} 'http://iot-agent:4041/version'` -eq 000 ]
+	do 
+	  echo -e "IoT Agent HTTP state: " `curl -s -o /dev/null -w %{http_code} 'http://localhost:4041/version'` " (waiting for 200)"
+	  sleep 1
+	done
 }
 
 if (( $# != 1 )); then
@@ -30,11 +93,17 @@ case "${command}" in
         ;;
     "start")
 		stoppingContainers
-		echo -e "Starting one container \033[1;30mTutorial\033[0m"
-		echo -e "- \033[1;30mTutorial\033[0m acts as a series of dummy IoT Sensors over HTTP"
+		echo -e "Starting seven containers \033[1;34mOrion\033[0m, \033[1;36mIoT-Agent\033[0m, two \033[1mSpark\033[0m instances (jobmanager taskmanager)  and a \033[1mTutorial\033[0m and \033[1mMongoDB\033[0m database."
+		echo -e "- \033[1;34mOrion\033[0m is the context broker"
+		echo -e "- \033[1;36mIoT-Agent\033[0m is configured for the UltraLight Protocol"
+		echo -e "- \033[1mTutorial\033[0m acts as a series of dummy IoT Sensors over HTTP"
+		echo -e "- \033[1mApache Spark\033[0m is a stream-processing framework"	
 		echo ""
 		docker-compose --log-level ERROR -p fiware up -d --remove-orphans
+		addDatabaseIndex
+		waitForOrion
 		loadData
+		displayServices
 		echo -e "Now open \033[4mhttp://localhost:3000/device/monitor\033[0m"
 		;;
 	"stop")

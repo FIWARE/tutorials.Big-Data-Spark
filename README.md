@@ -1,22 +1,22 @@
 
-[![FIWARE Banner](https://fiware.github.io/tutorials.Historic-Context-NIFI/img/fiware.png)](https://www.fiware.org/developers)
+[![FIWARE Banner](https://fiware.github.io/tutorials.Big-Data-Spark/img/fiware.png)](https://www.fiware.org/developers)
 
-[![FIWARE Context processing, analysis and visualisation](https://nexus.lab.fiware.org/static/badges/chapters/processing.svg)](https://github.com/FIWARE/catalogue/blob/master/processing/README.md)
-[![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Historic-Context-NIFI.svg)](https://opensource.org/licenses/MIT)
+[![FIWARE Core Context Management](https://nexus.lab.fiware.org/static/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/processing/README.md)
+[![License: MIT](https://img.shields.io/github/core/fiware/tutorials.Big-Data-Spark.svg)](https://opensource.org/licenses/MIT)
 [![NGSI v2](https://img.shields.io/badge/NGSI-v2-blue.svg)](https://fiware-ges.github.io/orion/api/v2/stable/)
 [![Support badge](https://nexus.lab.fiware.org/repository/raw/public/badges/stackoverflow/fiware.svg)](https://stackoverflow.com/questions/tagged/fiware)
 <br/>  [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
-  
+
 
 This tutorial is an introduction to the [FIWARE Cosmos Orion Spark Connector](http://fiware-cosmos-spark.rtfd.io), which enables easier Big Data analysis over context, integrated with one of the most popular BigData platforms: [Apache Spark](https://spark.apache.org/). Apache Spark is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams. Spark has been designed to run in all common cluster environments, perform computations at in-memory speed and at any scale.
 
-  
+
 The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as Postman documentation:
-  
+
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.getpostman.com/collections/9e508e30f737e7db4fa9)
 
-  
+
 ## Contents
 
 <details>
@@ -45,7 +45,7 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
         -   [Feedback Loop - Analyzing the Code](#feedback-loop---analyzing-the-code)
 
 </details>
-  
+
 
 # Real-time Processing and Big Data Analysis
 
@@ -70,8 +70,8 @@ installations, each subscription event can be processed one-by-one by a single r
 grows, another technique will be required to avoid overwhelming the listener, potentially blocking resources and missing
 updates.
 
-**Apache Spark** is an open-source distributed general-purpose cluster-computing framework. 
-It provides an interface for programming entire clusters with implicit data parallelism and fault tolerance. 
+**Apache Spark** is an open-source distributed general-purpose cluster-computing framework.
+It provides an interface for programming entire clusters with implicit data parallelism and fault tolerance.
 The **Cosmos Spark** connector allows developers write custom business logic to listen for context data subscription events and then process
 the flow of the context data. Spark is able to delegate these actions to other workers where they will be acted upon
 either in sequentiallly or in parallel as required. The data flow processing itself can be arbitrarily complex.
@@ -80,7 +80,7 @@ Obviously, in reality, our existing Supermarket scenario is far too small to req
 will serve as a basis for demonstrating the type of real-time processing which may be required in a larger solution
 which is processing a continuous stream of context-data events.
 
- 
+
 # Architecture
 
 This application builds on the components and dummy IoT devices created in
@@ -128,10 +128,10 @@ Therefore the overall architecture will consist of the following elements:
         -   makes requests to publicly available data sources using their own APIs in a proprietary format
         -   returns context data back to the Orion Context Broker in
             [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
-            
+
 The overall architecture can be seen below:
 
-![](https://raw.githubusercontent.com/ging/fiware-cosmos-orion-spark-connector-tutorial/master/img/Tutorial%20FIWARE%20Spark.png)
+![](https://fiware.github.io/tutorials.Big-Data-Spark/img/Tutorial%20FIWARE%20Spark.png)
 
 
 ## Spark Cluster Configuration
@@ -187,7 +187,7 @@ technology which allows to different components isolated into their respective e
 -   To install Docker on Linux follow the instructions [here](https://docs.docker.com/install/)
 
 **Docker Compose** is a tool for defining and running multi-container Docker applications. A series of
-[YAML files](https://github.com/FIWARE/tutorials.Historic-Context-NIFI/tree/master/docker-compose) are used to configure
+[YAML files](https://github.com/FIWARE/tutorials.Big-Data-Spark/tree/master/docker-compose) are used to configure
 the required services for the application. This means all container services can be brought up in a single command.
 Docker Compose is installed by default as part of Docker for Windows and Docker for Mac, however Linux users will need
 to follow the instructions found [here](https://docs.docker.com/compose/install/)
@@ -203,7 +203,7 @@ Please ensure that you are using Docker version 18.03 or higher and Docker Compo
 necessary.
 
 ## Maven
-[Apache Maven](https://maven.apache.org/download.cgi) is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information. We will use Maven to define and download our dependencies and to build and package our code into a JAR file. 
+[Apache Maven](https://maven.apache.org/download.cgi) is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information. We will use Maven to define and download our dependencies and to build and package our code into a JAR file.
 
 
 ## Cygwin for Windows
@@ -214,11 +214,11 @@ to provide a command-line functionality similar to a Linux distribution on Windo
 
 # Start Up
 
-  
+
 
 Before you start, you should ensure that you have obtained or built the necessary Docker images locally. Please clone the repository and create the necessary images by running the commands shown below. Note that you might need to run some of the commands as a privileged user:
 
-  
+
 ```bash
 git clone https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial.git
 cd fiware-cosmos-orion-spark-connector-tutorial
@@ -227,7 +227,7 @@ cd fiware-cosmos-orion-spark-connector-tutorial
 This command will also import seed data from the previous tutorials and provision the dummy IoT sensors on startup.
 
 To start the system, run the following command:
- 
+
 ```bash
 ./services start
 ```
@@ -293,8 +293,8 @@ A new JAR file called `cosmos-examples-1.2.1.jar` will be created within the `co
 
 For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated. The dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor` and unlock a **Smart Door** and switch on a **Smart Lamp**. This can be done by selecting an appropriate the command from the drop down list and pressing the `send` button. The stream of measurements coming from the devices can then be seen on the same page:
 
-![](https://fiware.github.io/tutorials.Historic-Context-NIFI/img/door-open.gif)
-  
+![](https://fiware.github.io/tutorials.Big-Data-Spark/img/door-open.gif)
+
 
 ## Logger - Reading Context Data Streams
 
@@ -311,7 +311,7 @@ And run the following command to run the generated JAR package  in the Spark clu
 /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.Logger \
 --master  spark://spark-master:7077 \
---deploy-mode client /home/cosmos-examples-1.2.1.jar \ 
+--deploy-mode client /home/cosmos-examples-1.2.1.jar \
 --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 
@@ -431,7 +431,7 @@ Sensor(Motion,6)
 
 ### Logger - Analyzing the Code
 
-```scala 
+```scala
 
 package org.fiware.cosmos.tutorial
 
@@ -497,7 +497,7 @@ processedDataStream.print()
 
 #### Logger - NGSI-LD:
 
-The same example is provided for data in the NGSI LD format (`LoggerLD.scala`). This example makes use of the NGSILDReceiver provided by the Orion Spark Connector in order to receive messages in the NGSI LD format. The only part of the code that changes is the declaration of the receiver: 
+The same example is provided for data in the NGSI LD format (`LoggerLD.scala`). This example makes use of the NGSILDReceiver provided by the Orion Spark Connector in order to receive messages in the NGSI LD format. The only part of the code that changes is the declaration of the receiver:
 
 ```scala
 ...
@@ -513,7 +513,7 @@ In order to run this job, you need to user the spark-submit command again, speci
 /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.LoggerLD \
 --master  spark://spark-master:7077 \
---deploy-mode client /home/cosmos-examples-1.2.1.jar \ 
+--deploy-mode client /home/cosmos-examples-1.2.1.jar \
 --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ````
 
@@ -618,10 +618,10 @@ object Feedback {
 
 ```
 
-As you can see, it is similar to the previous example. The main difference is that it writes the processed data back in the Context Broker through the  **`OrionSink`**. 
+As you can see, it is similar to the previous example. The main difference is that it writes the processed data back in the Context Broker through the  **`OrionSink`**.
 
 The arguments of the **`OrionSinkObject`** are:
--   **Message**: ```"{\n  \"on\": {\n      \"type\" : \"command\",\n      \"value\" : \"\"\n  }\n}"```. We send 'on' command 
+-   **Message**: ```"{\n  \"on\": {\n      \"type\" : \"command\",\n      \"value\" : \"\"\n  }\n}"```. We send 'on' command
 -   **URL**: ```"http://localhost:1026/v2/entities/Lamp:"+node.id.takeRight(3)+"/attrs"```. TakeRight(3) gets the number of the room, for example '001')
 -   **Content Type**: `ContentType.Plain`.
 -   **HTTP Method**: `HTTPMethod.POST`.
