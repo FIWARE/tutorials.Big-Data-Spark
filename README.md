@@ -71,7 +71,7 @@ updates.
 programming entire clusters with implicit data parallelism and fault tolerance. The **Cosmos Spark** connector allows
 developers write custom business logic to listen for context data subscription events and then process the flow of the
 context data. Spark is able to delegate these actions to other workers where they will be acted upon either in
-sequentiallly or in parallel as required. The data flow processing itself can be arbitrarily complex.
+sequentially or in parallel as required. The data flow processing itself can be arbitrarily complex.
 
 Obviously, in reality, our existing Supermarket scenario is far too small to require the use of a Big Data solution, but
 will serve as a basis for demonstrating the type of real-time processing which may be required in a larger solution
@@ -84,9 +84,9 @@ This application builds on the components and dummy IoT devices created in
 [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/), the
 [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/), and the
 [Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) for connecting Orion to an
-[Apache Spar cluster](https://spark.apache.org/docs/latest/cluster-overview.html). The Spark cluster itself will consist
-of a single **Cluster Manager** _master_ to coordinate execution and some **Worker Nodes** _worker_ to execute the
-tasks.
+[Apache Spark cluster](https://spark.apache.org/docs/latest/cluster-overview.html). The Spark cluster itself will
+consist of a single **Cluster Manager** _master_ to coordinate execution and some **Worker Nodes** _worker_ to execute
+the tasks.
 
 Both the Orion Context Broker and the IoT Agent rely on open source [MongoDB](https://www.mongodb.com/) technology to
 keep persistence of the information they hold. We will also be using the dummy IoT devices created in the
@@ -370,7 +370,7 @@ curl -iX POST \
 }'
 ```
 
-The response will be `**201 - Created**`
+The response will be **`201 - Created`**
 
 If a subscription has been created, we can check to see if it is firing by making a GET request to the
 `/v2/subscriptions` endpoint.
@@ -494,14 +494,14 @@ together the entity objects of all the NGSI Events received in a period of time.
 (with the `map()` operation) and extracts the desired attributes. In this case, we are interested in the sensor `type`
 (`Door`, `Motion`, `Bell` or `Lamp`).
 
-Within each iteration, we create a custom object with the property we need: the sensor `type. For this purpose, we can
+Within each iteration, we create a custom object with the property we need: the sensor `type`. For this purpose, we can
 define a case class as shown:
 
 ```scala
 case class Sensor(device: String)
 ```
 
-Therefter can count the created objects by the type of device (`countByValue()`) and perform operations such as
+Thereafter can count the created objects by the type of device (`countByValue()`) and perform operations such as
 `window()` on them.
 
 After the processing, the results are output to the console:
@@ -512,8 +512,8 @@ processedDataStream.print()
 
 #### Logger - NGSI-LD:
 
-The same example is provided for data in the NGSI LD format (`LoggerLD.scala`). This example makes use of the
-NGSILDReceiver provided by the Orion Spark Connector in order to receive messages in the NGSI LD format. The only part
+The same example is provided for data in the NGSI-LD format (`LoggerLD.scala`). This example makes use of the
+NGSILDReceiver provided by the Orion Spark Connector in order to receive messages in the NGSI-LD format. The only part
 of the code that changes is the declaration of the receiver:
 
 ```scala
