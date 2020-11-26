@@ -1,5 +1,5 @@
 [![FIWARE Banner](https://fiware.github.io/tutorials.Big-Data-Spark/img/fiware.png)](https://www.fiware.org/developers)
-[![NGSI v2](https://img.shields.io/badge/NGSI-v2-5dc0cf.svg)](https://fiware-ges.github.io/orion/api/v2/stable/)
+[![NGSI LD](https://img.shields.io/badge/NGSI-LD-d6604d.svg)](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.03.01_60/gs_cim009v010301p.pdf)
 
 [![FIWARE Core Context Management](https://nexus.lab.fiware.org/static/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/processing/README.md)
 [![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Big-Data-Spark.svg)](https://opensource.org/licenses/MIT)
@@ -261,7 +261,7 @@ cd fiware-cosmos-orion-spark-connector-tutorial
 
 [Apache Spark のドキュメント](https://spark.apache.org/documentation.html) によると、Spark Streaming はコア Spark API
 の拡張であり、ライブ・データ・ストリームのスケーラブルで高スループットのフォールト・トレラントなストリーム処理を
-可能にします。データは、Kafka, Flume, Kinesis, TCP ソケットなどの多くのソースから取り込むことができ、map, reduce, join, 
+可能にします。データは、Kafka, Flume, Kinesis, TCP ソケットなどの多くのソースから取り込むことができ、map, reduce, join,
 window などの高レベル関数で表現された複雑なアルゴリズムを使用して処理できます。最後に、処理されたデータを
 ファイルシステム、データベース、およびライブ・ダッシュボードにプッシュできます。
 実際、Spark の機械学習とグラフ処理アルゴリズムをデータ・ストリームに適用できます。
