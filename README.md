@@ -537,8 +537,6 @@ In order to run this job, you need to user the spark-submit command again, speci
 --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 
-
-
 ## Feedback Loop - Persisting Context Data
 
 The second example switches on a lamp when its motion sensor detects movement.
