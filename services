@@ -124,8 +124,8 @@ case "${command}" in
 		echo "Pulling Docker images"
 		docker-compose --log-level ERROR -p fiware pull
 		echo -e "Pulling \033[1;34mCosmos Spark\033[0m connector"
-		curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9/orion.spark.connector-1.2.1.jar
-		mv orion.spark.connector-1.2.1.jar cosmos-examples/orion.spark.connector-1.2.1.jar
+		curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.1/orion.spark.connector-1.2.2.jar
+		mv orion.spark.connector-1.2.2.jar cosmos-examples/orion.spark.connector-1.2.2.jar
 		;;
 	*)
 		echo "Command not Found."
