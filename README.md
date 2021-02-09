@@ -97,13 +97,14 @@ keep persistence of the information they hold. We will also be using the dummy I
 Therefore the overall architecture will consist of the following elements:
 
 -   Two **FIWARE Generic Enablers** as independent microservices:
-    -   The FIWARE [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests
-        using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
-    -   The FIWARE [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) which will
-        receive northbound measurements from the dummy IoT devices in
-        [Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
-        format and convert them to [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) requests for the
-        context broker to alter the state of the context entities
+    -   The [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) which will receive requests using
+        [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/gitlab/NGSI-LD/NGSI-LD/raw/master/spec/updated/full_api.json)
+    -   The FIWARE [IoT Agent for UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) which will
+        receive southbound requests using
+        [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/gitlab/NGSI-LD/NGSI-LD/raw/master/spec/updated/full_api.json)
+        and convert them to
+        [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+        commands for the devices
 -   An [Apache Spark cluster](https://spark.apache.org/docs/latest/cluster-overview.html) consisting of a single
     **ClusterManager** and **Worker Nodes**
     -   The FIWARE [Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) will be
@@ -113,19 +114,12 @@ Therefore the overall architecture will consist of the following elements:
     -   Used by the **Orion Context Broker** to hold context data information such as data entities, subscriptions and
         registrations
     -   Used by the **IoT Agent** to hold device information such as device URLs and Keys
--   Three **Context Providers**:
-    -   A webserver acting as set of [dummy IoT devices](https://github.com/FIWARE/tutorials.IoT-Sensors) using the
-        [Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+-   The **Tutorial Application** does the following:
+    -   Offers static `@context` files defining the context entities within the system.
+    -   Acts as set of dummy [agricultural IoT devices](https://github.com/FIWARE/tutorials.IoT-Sensors/tree/NGSI-LD)
+        using the
+        [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
         protocol running over HTTP.
-    -   The **Stock Management Frontend** is not used in this tutorial. It does the following:
-        -   Display store information and allow users to interact with the dummy IoT devices
-        -   Show which products can be bought at each store
-        -   Allow users to "buy" products and reduce the stock count.
-    -   The **Context Provider NGSI** proxy is not used in this tutorial. It does the following:
-        -   receive requests using [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2)
-        -   makes requests to publicly available data sources using their own APIs in a proprietary format
-        -   returns context data back to the Orion Context Broker in
-            [NGSI](https://fiware.github.io/specifications/OpenAPI/ngsiv2) format.
 
 The overall architecture can be seen below:
 
@@ -300,18 +294,18 @@ A new JAR file called `cosmos-examples-1.2.2.jar` will be created within the `co
 
 For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated. The
 dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor` and
-unlock a **Smart Door** and switch on a **Smart Lamp**. This can be done by selecting an appropriate the command from
+start a tractor moving. This can be done by selecting an appropriate the command from
 the drop down list and pressing the `send` button. The stream of measurements coming from the devices can then be seen
 on the same page:
 
-![](https://fiware.github.io/tutorials.Big-Data-Spark/img/door-open.gif)
+![](https://fiware.github.io/tutorials.Big-Data-Flink/img/farm-devices.gif)
 
 ## Logger - Reading Context Data Streams
 
-The first example makes use of the `OrionReceiver` operator in order to receive notifications from the Orion Context
+The first example makes use of the `NGSILDReceiver` operator in order to receive notifications from the Orion Context
 Broker. Specifically, the example counts the number notifications that each type of device sends in one minute. You can
 find the source code of the example in
-[org/fiware/cosmos/tutorial/Logger.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Logger.scala)
+[org/fiware/cosmos/tutorial/LoggerLD.scala](https://github.com/FIWARE/tutorials.Big-Data-Flink/blob/NGSI-LD/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/LoggerLD.scala)
 
 ### Logger - Installing the JAR
 
@@ -336,12 +330,12 @@ And run the following command to run the generated JAR package in the Spark clus
 Once a dynamic context system is up and running (we have deployed the `Logger` job in the Spark cluster), we need to
 inform **Spark** of changes in context.
 
-This is done by making a POST request to the `/v2/subscription` endpoint of the Orion Context Broker.
+This is done by making a POST request to the `/ngsi-ld/v1/subscriptions` endpoint of the Orion Context Broker.
 
--   The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to
+-   The `NGSILD-Tenant` header is used to filter the subscription to only listen to
     measurements from the attached IoT Sensors, since they had been provisioned using these settings
 
--   The notification `url` must match the one our Spark program is listening to.
+-   The notification `uri` must match the one our Spark program is listening to.
 
 -   The `throttling` value defines the rate that changes are sampled.
 
@@ -350,25 +344,23 @@ Open another terminal and run the following command:
 #### :one: Request:
 
 ```console
-curl -iX POST \
-  'http://localhost:1026/v2/subscriptions' \
-  -H 'Content-Type: application/json' \
-  -H 'fiware-service: openiot' \
-  -H 'fiware-servicepath: /' \
-  -d '{
-  "description": "Notify Spark of all context changes",
-  "subject": {
-    "entities": [
-      {
-      "idPattern": ".*"
-      }
-    ]
-  },
+curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+-H 'Content-Type: application/ld+json' \
+-H 'NGSILD-Tenant: openiot' \
+--data-raw '{
+  "description": "Notify Spark of all animal and farm vehicle movements",
+  "type": "Subscription",
+  "entities": [{"type": "Tractor"}, {"type": "Device"}],
+  "watchedAttributes": ["location"],
   "notification": {
-    "http": {
-        "url": "http://spark-worker-1:9001"
+    "attributes": ["location"],
+    "format": "normalized",
+    "endpoint": {
+      "uri": "http://spark-worker-1:9001",
+      "accept": "application/json"
     }
-  }
+  },
+   "@context": "http://context-provider:3000/data-models/ngsi-context.jsonld"
 }'
 ```
 
@@ -390,32 +382,24 @@ curl -X GET \
 
 ```json
 [
-    {
-        "id": "5d76059d14eda92b0686f255",
-        "description": "Notify Spark of all context changes",
-        "status": "active",
-        "subject": {
-            "entities": [
-                {
-                    "idPattern": ".*"
-                }
-            ],
-            "condition": {
-                "attrs": []
-            }
-        },
-        "notification": {
-            "timesSent": 362,
-            "lastNotification": "2019-09-09T09:36:33.00Z",
-            "attrs": [],
-            "attrsFormat": "normalized",
-            "http": {
-                "url": "http://spark-worker-1:9001"
-            },
-            "lastSuccess": "2019-09-09T09:36:33.00Z",
-            "lastSuccessCode": 200
-        }
-    }
+  {
+    "id": "urn:ngsi-ld:Subscription:60216f404dae3a1f22b705e6",
+    "type": "Subscription",
+    "description": "Notify Spark of all animal and farm vehicle movements",
+    "entities": [{"type": "Tractor"}, {"type": "Device"}],
+    "watchedAttributes": ["location"],
+    "notification": {
+      "attributes": ["location"],
+      "format": "normalized",
+      "endpoint": {
+        "uri": "http://taskmanager:9001",
+        "accept": "application/json"
+      },
+      "timesSent": 74,
+      "lastNotification": "2021-02-08T17:06:06.043Z"
+    },
+    "@context": "http://context-provider:3000/data-models/ngsi-context.jsonld"
+  }
 ]
 ```
 
@@ -427,7 +411,7 @@ that the `subject` of the subscription is incorrect or the subscription has crea
 or `fiware-service` header
 
 The `lastNotification` should be a recent timestamp - if this is not the case, then the devices are not regularly
-sending data. Remember to unlock the **Smart Door** and switch on the **Smart Lamp**
+sending data. Remember to activate the smart farm by moving a **Tractor**
 
 The `lastSuccess` should match the `lastNotification` date - if this is not the case then **Cosmos** is not receiving
 the subscription properly. Check that the hostname and port are correct.
@@ -440,40 +424,40 @@ Leave the subscription running for **one minute**. Then, the output on the conso
 be like the following:
 
 ```text
-Sensor(Bell,3)
-Sensor(Door,4)
-Sensor(Lamp,7)
-Sensor(Motion,6)
+Sensor(Tractor,19)
+Sensor(Device,49)
 ```
 
 ### Logger - Analyzing the Code
 
 ```scala
 package org.fiware.cosmos.tutorial
-
-import org.apache.spark.SparkConf
+import org.apache.spark._
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.fiware.cosmos.orion.spark.connector.OrionReceiver
-
-object Logger{
+import org.fiware.cosmos.orion.spark.connector._
+/**
+  * Logger example NGSILD Connector
+  * @author @Javierlj
+  */
+object LoggerLD{
 
   def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf().setAppName("Logger")
+    val conf = new SparkConf().setAppName("Example 1")
     val ssc = new StreamingContext(conf, Seconds(60))
     // Create Orion Receiver. Receive notifications on port 9001
-    val eventStream = ssc.receiverStream(new OrionReceiver(9001))
+    val eventStream = ssc.receiverStream(new NGSILDReceiver(9001))
 
     // Process event stream
-    val processedDataStream= eventStream
+    eventStream
       .flatMap(event => event.entities)
       .map(ent => {
         new Sensor(ent.`type`)
       })
       .countByValue()
       .window(Seconds(60))
+      .print()
 
-    processedDataStream.print()
 
     ssc.start()
     ssc.awaitTermination()
@@ -483,18 +467,18 @@ object Logger{
 ```
 
 The first lines of the program are aimed at importing the necessary dependencies, including the connector. The next step
-is to create an instance of the `OrionReceiver` using the class provided by the connector and to add it to the
+is to create an instance of the `NGSILDReceiver` using the class provided by the connector and to add it to the
 environment provided by Spark.
 
-The `OrionReceiver` constructor accepts a port number (`9001`) as a parameter. This port is used to listen to the
+The `NGSILDReceiver` constructor accepts a port number (`9001`) as a parameter. This port is used to listen to the
 subscription notifications coming from Orion and converted to a `DataStream` of `NgsiEvent` objects. The definition of
 these objects can be found within the
-[Orion-Spark Connector documentation](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionreceiver).
+[Orion-Spark Connector documentation](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#NGSILDReceiver).
 
 The stream processing consists of five separate steps. The first step (`flatMap()`) is performed in order to put
 together the entity objects of all the NGSI Events received in a period of time. Thereafter the code iterates over them
 (with the `map()` operation) and extracts the desired attributes. In this case, we are interested in the sensor `type`
-(`Door`, `Motion`, `Bell` or `Lamp`).
+(`Device` or `Tractor`).
 
 Within each iteration, we create a custom object with the property we need: the sensor `type`. For this purpose, we can
 define a case class as shown:
@@ -512,39 +496,14 @@ After the processing, the results are output to the console:
 processedDataStream.print()
 ```
 
-#### Logger - NGSI-LD:
-
-The same example is provided for data in the NGSI-LD format (`LoggerLD.scala`). This example makes use of the
-NGSILDReceiver provided by the Orion Spark Connector in order to receive messages in the NGSI-LD format. The only part
-of the code that changes is the declaration of the receiver:
-
-```scala
-...
-import org.fiware.cosmos.orion.spark.connector.NGSILDReceiver
-...
-val eventStream = env.addSource(new NGSILDReceiver(9001))
-...
-```
-
-In order to run this job, you need to user the spark-submit command again, specifying the `LoggerLD` class instead of
-`Logger`:
-
-```console
-/spark/bin/spark-submit \
---class  org.fiware.cosmos.tutorial.LoggerLD \
---master  spark://spark-master:7077 \
---deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.2.jar \
---conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
-```
-
 ## Feedback Loop - Persisting Context Data
 
 The second example switches on a lamp when its motion sensor detects movement.
 
-The dataflow stream uses the `OrionReceiver` operator in order to receive notifications and filters the input to only
-respond to motion senseors and then uses the `OrionSink` to push processed context back to the Context Broker. You can
+The dataflow stream uses the `NGSILDReceiver` operator in order to receive notifications and filters the input to only
+respond to motion senseors and then uses the `NGSILDSink` to push processed context back to the Context Broker. You can
 find the source code of the example in
-[org/fiware/cosmos/tutorial/Feedback.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Feedback.scala)
+[org/fiware/cosmos/tutorial/FeedbackLD.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/FeedbackLD.scala)
 
 ### Feedback Loop - Installing the JAR
 
@@ -565,25 +524,23 @@ up to only trigger a notification when a motion sensor detects movement.
 > is unnecessary. There is a filter within the business logic of the scala task itself.
 
 ```console
-curl -iX POST \
-  'http://localhost:1026/v2/subscriptions' \
-  -H 'Content-Type: application/json' \
-  -H 'fiware-service: openiot' \
-  -H 'fiware-servicepath: /' \
-  -d '{
-  "description": "Notify Spark of all context changes",
-  "subject": {
-    "entities": [
-      {
-        "idPattern": "Motion.*"
-      }
-    ]
-  },
+curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+-H 'Content-Type: application/ld+json' \
+-H 'NGSILD-Tenant: openiot' \
+--data-raw '{
+  "description": "Notify me of all feedstock levels",
+  "type": "Subscription",
+  "entities": [{"type": "FillingSensor"}],
+  "watchedAttributes": ["filling"],
   "notification": {
-    "http": {
-      "url": "http://spark-worker-1:9001"
+    "attributes": ["filling"],
+    "format": "normalized",
+    "endpoint": {
+      "uri": "http://spark-worker-1:9001",
+      "accept": "application/json"
     }
-  }
+  },
+   "@context": "http://context-provider:3000/data-models/ngsi-context.jsonld"
 }'
 ```
 
@@ -591,8 +548,7 @@ curl -iX POST \
 
 Go to `http://localhost:3000/device/monitor`
 
-Within any Store, unlock the door and wait. Once the door opens and the Motion sensor is triggered, the lamp will switch
-on directly
+Add or remove some hay from each of the barns to change the filling level and repeat a couple of times.
 
 ### Feedback Loop - Analyzing the Code
 
@@ -614,7 +570,7 @@ object Feedback {
     val conf = new SparkConf().setAppName("Feedback")
     val ssc = new StreamingContext(conf, Seconds(10))
     // Create Orion Receiver. Receive notifications on port 9001
-    val eventStream = ssc.receiverStream(new OrionReceiver(9001))
+    val eventStream = ssc.receiverStream(new NGSILDReceiver(9001))
 
     // Process event stream
     val processedDataStream = eventStream
@@ -671,4 +627,4 @@ reading the other [tutorials in this series](https://fiware-tutorials.rtfd.io)
 
 ## License
 
-[MIT](LICENSE) © 2020 FIWARE Foundation e.V.
+[MIT](LICENSE) © 2021 FIWARE Foundation e.V.
