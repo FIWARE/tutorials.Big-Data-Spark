@@ -279,7 +279,7 @@ window などの高レベル関数で表現された複雑なアルゴリズム�
 -   変換操作 (transform operations) を定義するビジネスロジック
 -   **Sink Operator** としてコンテキスト・データを Context Broker にプッシュバックするメカニズム
 
-**Cosmos Spark** connector - `orion.spark.connector-1.2.1.jar` は、**Source** および **Sink** operators の両方を
+**Cosmos Spark** connector - `orion.spark.connector-1.2.2.jar` は、**Source** および **Sink** operators の両方を
 提供します。したがって、ストリーミング・データフロー・パイプライン操作を相互に接続するために必要な Scala コードを
 記述するだけです。処理コードは、Spark クラスタにアップロードできる JAR ファイルにコンパイルできます。
 以下に2つの例を詳しく説明します。このチュートリアルのすべてのソースコードは、
@@ -300,12 +300,12 @@ Orion Spark Connector を使用するには、最初に Maven を使用してア
 
 ```console
 cd cosmos-examples
-curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9/orion.spark.connector-1.2.1.jar
+curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.1/orion.spark.connector-1.2.2.jar
 mvn install:install-file \
-  -Dfile=./orion.spark.connector-1.2.1.jar \
+  -Dfile=./orion.spark.connector-1.2.2.jar \
   -DgroupId=org.fiware.cosmos \
   -DartifactId=orion.spark.connector \
-  -Dversion=1.2.1 \
+  -Dversion=1.2.2 \
   -Dpackaging=jar
 ```
 
@@ -316,7 +316,7 @@ mvn install:install-file \
 mvn package
 ```
 
-`cosmos-examples-1.2.1.jar` と呼ばれる新しい JAR ファイルが `cosmos-examples/target` ディレクトリ内に作成されます。
+`cosmos-examples-1.2.2.jar` と呼ばれる新しい JAR ファイルが `cosmos-examples/target` ディレクトリ内に作成されます。
 
 <a name="generating-a-stream-of-context-data"/>
 
@@ -355,7 +355,7 @@ docker exec -it spark-worker-1 bin/bash
 /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.Logger \
 --master  spark://spark-master:7077 \
---deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.1.jar \
+--deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.2.jar \
 --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 
@@ -566,7 +566,7 @@ val eventStream = env.addSource(new NGSILDReceiver(9001))
 /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.LoggerLD \
 --master  spark://spark-master:7077 \
---deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.1.jar \
+--deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.2.jar \
 --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 
@@ -590,7 +590,7 @@ val eventStream = env.addSource(new NGSILDReceiver(9001))
 /spark/bin/spark-submit  \
 --class  org.fiware.cosmos.tutorial.Feedback \
 --master  spark://spark-master:7077 \
---deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.1.jar \
+--deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.2.jar \
 --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 ```
 

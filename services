@@ -41,10 +41,18 @@ waitForContext () {
 	done
 }
 
+waitForMongo () {
+	echo -e "\n⏳ Waiting for \033[1mMongoDB\033[0m to be available\n"
+	while ! [ `docker inspect --format='{{.State.Health.Status}}' db-mongo` == "healthy" ]
+	do 
+		sleep 1
+	done
+}
+
 waitForOrion () {
 	echo -e "\n⏳ Waiting for \033[1;34mOrion-LD\033[0m to be available\n"
-	getHeartbeat "${ORION}"
-	while [ "${response}" -eq 000 ]
+	
+	while ! [ `docker inspect --format='{{.State.Health.Status}}' fiware-orion` == "healthy" ]
 	do
 		echo -e "\nContext Broker HTTP state: ${response} (waiting for 200)"
 		pause 6
@@ -72,8 +80,7 @@ waitForScorpio () {
 
 waitForIoTAgent () {
 	echo -e "\n⏳ Waiting for \033[1;36mIoT-Agent\033[0m to be available\n"
-	getHeartbeat "${IOT_AGENT}"
-	while [ "${response}" -eq 000 ]
+	while ! [ `docker inspect --format='{{.State.Health.Status}}' fiware-iot-agent` == "healthy" ]
 	do
 		echo -e "\nIoT Agent HTTP state: ${response} (waiting for 200)"
 		pause 6
@@ -162,6 +169,7 @@ case "${command}" in
 		echo -e "- \033[1mApache Spark\033[0m is a stream-processing framework"	
 		echo ""
 		docker-compose --log-level ERROR -p fiware up -d --remove-orphans
+		waitForMongo
 		addDatabaseIndex
 		waitForOrion
 		loadData orion:1026
@@ -175,8 +183,8 @@ case "${command}" in
 		echo "Pulling Docker images"
 		docker-compose --log-level ERROR -p fiware pull
 		echo -e "Pulling \033[1;34mCosmos Spark\033[0m connector"
-		curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9/orion.spark.connector-1.2.1.jar
-		mv orion.spark.connector-1.2.1.jar cosmos-examples/orion.spark.connector-1.2.1.jar
+		curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.1/orion.spark.connector-1.2.2.jar
+		mv orion.spark.connector-1.2.2.jar cosmos-examples/orion.spark.connector-1.2.2.jar
 		;;
 	*)
 		echo "Command not Found."
