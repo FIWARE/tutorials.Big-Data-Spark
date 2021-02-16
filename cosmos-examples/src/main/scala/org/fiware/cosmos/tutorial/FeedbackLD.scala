@@ -12,7 +12,6 @@ import org.fiware.cosmos.orion.spark.connector._
 object FeedbackLD {
   final val CONTENT_TYPE = ContentType.JSON
   final val METHOD = HTTPMethod.PATCH
-  final val CONTENT2 = "{\n  \"on\": {\n  \"type\" : \"command\",\n  \"value\" : \" \"\n  }\n}"
   final val CONTENT = "{\n  \"type\" : \"Property\",\n  \"value\" : \" \" \n}"
   final val HEADERS = Map(
     "NGSILD-Tenant" -> "openiot",
@@ -64,6 +63,4 @@ object FeedbackLD {
 
     ssc.awaitTermination()
   }
-
-  case class Sensor(id: String)
 }
