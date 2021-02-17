@@ -210,8 +210,8 @@ the repository and create the necessary images by running the commands shown bel
 of the commands as a privileged user:
 
 ```console
-git clone https://github.com/FIWARE/tutorials.Big-Data-Flink.git
-cd tutorials.Big-Data-Flink
+git clone https://github.com/FIWARE/tutorials.Big-Data-Spark.git
+cd tutorials.Big-Data-Spark
 git checkout NGSI-LD
 ./services create
 ```
@@ -334,7 +334,7 @@ This is done by making a POST request to the `/ngsi-ld/v1/subscriptions` endpoin
 -   The `NGSILD-Tenant` header is used to filter the subscription to only listen to
     measurements from the attached IoT Sensors, since they had been provisioned using these settings
 
--   The notification `uri` must match the one our Flink program is listening to.
+-   The notification `uri` must match the one our Spark program is listening to.
 
 -   The `throttling` value defines the rate that changes are sampled.
 

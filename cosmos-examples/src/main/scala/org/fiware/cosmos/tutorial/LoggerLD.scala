@@ -1,32 +1,33 @@
 package org.fiware.cosmos.tutorial
-
-
-import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
-import org.apache.flink.streaming.api.windowing.time.Time
-import org.fiware.cosmos.orion.flink.connector.{NGSILDSource}
-
+import org.apache.spark._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.fiware.cosmos.orion.spark.connector._
 /**
-  * Logger Example NGSI-LD Orion Connector
+  * Logger example NGSILD Connector
   * @author @Javierlj
   */
-object LoggerLD {
+object LoggerLD{
 
   def main(args: Array[String]): Unit = {
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
-    // Create Orion Source. Receive notifications on port 9001
-    val eventStream = env.addSource(new NGSILDSource(9001))
+
+    val conf = new SparkConf().setAppName("Example 1")
+    val ssc = new StreamingContext(conf, Seconds(60))
+    // Create Orion Receiver. Receive notifications on port 9001
+    val eventStream = ssc.receiverStream(new NGSILDReceiver(9001))
 
     // Process event stream
-    val processedDataStream = eventStream
+    eventStream
       .flatMap(event => event.entities)
-      .map(entity => new Sensor(entity.`type`, 1))
-      .keyBy("device")
-      .timeWindow(Time.seconds(60))
-      .sum(1)
+      .map(ent => {
+        new Sensor(ent.`type`)
+      })
+      .countByValue()
+      .window(Seconds(60))
+      .print()
 
-    // print the results with a single thread, rather than in parallel
-    processedDataStream.printToErr().setParallelism(1)
-    env.execute("Socket Window NgsiLDEvent")
+
+    ssc.start()
+    ssc.awaitTermination()
   }
+  case class Sensor(device: String)
 }
-case class Sensor(device: String, sum: Int)
