@@ -1,12 +1,12 @@
 package org.fiware.cosmos.tutorial
 
 
-import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
-import org.fiware.cosmos.orion.flink.connector._
-
+import org.apache.spark._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.fiware.cosmos.orion.spark.connector._
 
 /**
-  * FeedbackLD: Example NGSILD Connector
+  * FeedbackLD Example Orion Connector
   * @author @sonsoleslp
   */
 object FeedbackLD {
@@ -19,11 +19,14 @@ object FeedbackLD {
   )
   final val LOW_THRESHOLD = 35
   final val HIGH_THRESHOLD = 50
-
   def main(args: Array[String]): Unit = {
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
-    // Create Orion Source. Receive notifications on port 9001
-    val eventStream = env.addSource(new NGSILDSource(9001))
+
+    val conf = new SparkConf().setAppName("Feedback")
+    val ssc = new StreamingContext(conf, Seconds(10))
+
+    // Create Orion Receiver. Receive notifications on port 9001
+    val eventStream = ssc.receiverStream(new NGSILDReceiver(9001))
+
     // Process event stream
     val processedDataStream = eventStream.flatMap(event => event.entities)
       .filter(ent => ent.`type` == "SoilSensor")
@@ -54,8 +57,7 @@ object FeedbackLD {
     lowHumidity.map(sensor => "Sensor" + sensor._1 + " has detected a humidity level below " + LOW_THRESHOLD + ". Turning on water faucet!").print()
     OrionSink.addSink( lowSinkStream )
 
-    env.execute("Socket Window NgsiEvent")
+    ssc.start()
+    ssc.awaitTermination()
   }
-
-  case class Sensor(id: String)
 }
