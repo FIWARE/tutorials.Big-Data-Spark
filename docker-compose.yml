@@ -84,50 +84,35 @@ services:
       - "TWITTER_CONSUMER_KEY=<ADD_YOUR_CONSUMER_KEY>"
       - "TWITTER_CONSUMER_SECRET=<ADD_YOUR_CONSUMER_SECRET>"
 
-
-
-  jobmanager:
-    image: flink:${FLINK_VERSION}
-    hostname: jobmanager
-    container_name: flink-jobmanager
+  spark-master:
+    image: bde2020/spark-master:${SPARK_VERSION}
+    container_name: spark-master
     expose:
-      - "${FLINK_WEB_APP_PORT}"
-      - "${FLINK_JOB_MANAGER_PORT}"
-      - "${FLINK_SERVICE_PORT}"
+      - "${SPARK_WEB_APP_PORT}"
+      - "${SPARK_SERVICE_PORT}"
     ports:
-      - "${FLINK_JOB_MANAGER_PORT}:${FLINK_JOB_MANAGER_PORT}"
-      - "${FLINK_WEB_APP_PORT}:${FLINK_WEB_APP_PORT}"
-    networks:
-      - default
-    command: jobmanager
+      - "${SPARK_WEB_APP_PORT}:${SPARK_WEB_APP_PORT}"
+      - "${SPARK_MASTER_PORT}:${SPARK_MASTER_PORT}"
+      - "${SPARK_SERVICE_PORT}:${SPARK_SERVICE_PORT}"
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
-      - FLINK_LOG_DIR=/opt/flink/log
-
+      - INIT_DAEMON_STEP=setup_spark
+      - "constraint:node==spark-master"
     volumes:
-      - ./log4j-console.properties:/opt/flink/conf/log4j-console.properties
-      - ./flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-  taskmanager:
-    image: flink:${FLINK_VERSION}
-    hostname: taskmanager
-    container_name: flink-taskmanager
-    ports:
-      - "${FLINK_TASK_MANAGER_PORT_1}:${FLINK_TASK_MANAGER_PORT_1}"
-      - "${FLINK_TASK_MANAGER_PORT_2}:${FLINK_TASK_MANAGER_PORT_2}"
-      - "${FLINK_SERVICE_PORT}:${FLINK_SERVICE_PORT}"
-    networks:
-      - default
+      - ./log4j.properties:/spark/conf/log4j.properties
+  spark-worker-1:
+    image: bde2020/spark-worker:${SPARK_VERSION}
+    container_name: spark-worker-1
     depends_on:
-      - jobmanager
-    command: taskmanager
-    links:
-      - "jobmanager:jobmanager"
+      - spark-master
+    ports:
+      - "${SPARK_WORKER_1_PORT}:${SPARK_WORKER_1_PORT}"
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
-      - FLINK_LOG_DIR=/opt/flink/log
+      - "SPARK_MASTER=spark://spark-master:${SPARK_MASTER_PORT}"
+      - "constraint:node==spark-master"
     volumes:
-      - ./log4j-console.properties:/opt/flink/conf/log4j-console.properties
-      - ./flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
+      - ${PWD}/cosmos-examples/:/home/cosmos-examples/
+      - ${PWD}/log4j.properties:/spark/conf/log4j.properties
+
   # Database
   mongo-db:
     image: mongo:${MONGO_DB_VERSION}
