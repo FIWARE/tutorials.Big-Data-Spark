@@ -1,40 +1,35 @@
-[![FIWARE Banner](https://fiware.github.io/tutorials.Big-Data-Flink/img/fiware.png)](https://www.fiware.org/developers)
-[![NGSI LD](https://img.shields.io/badge/NGSI-LD-d6604d.svg)](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.03.01_60/gs_cim009v010301p.pdf)
+# Big Data Analysis (Spark)[<img src="https://img.shields.io/badge/NGSI-LD-d6604d.svg" width="90"  align="left" />]("https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.03.01_60/gs_cim009v010301p.pdf)[<img src="https://fiware.github.io/tutorials.Big-Data-Flink/img/fiware.png" align="left" width="162">](https://www.fiware.org/)<br/>
 
-[![FIWARE Core Context Management](https://nexus.lab.fiware.org/static/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/core/README.md)
-[![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Big-Data-Flink.svg)](https://opensource.org/licenses/MIT)
-[![Support badge](https://img.shields.io/badge/tag-fiware-orange.svg?logo=stackoverflow)](https://stackoverflow.com/questions/tagged/fiware)
- <br/>
-[![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
+[![FIWARE Core Context Management](https://nexus.lab.fiware.org/static/badges/chapters/core.svg)](https://github.com/FIWARE/catalogue/blob/master/processing/README.md)
+[![License: MIT](https://img.shields.io/github/license/fiware/tutorials.Big-Data-Spark.svg)](https://opensource.org/licenses/MIT)
+[![Support badge](https://nexus.lab.fiware.org/repository/raw/public/badges/stackoverflow/fiware.svg)](https://stackoverflow.com/questions/tagged/fiware)
+<br/> [![Documentation](https://img.shields.io/readthedocs/fiware-tutorials.svg)](https://fiware-tutorials.rtfd.io)
 
-このチュートリアルは [FIWARE Cosmos Orion Flink Connector](http://fiware-cosmos-flink.rtfd.io) の紹介です。これは、最も
-人気のあるビッグデータ・プラットフォームの1つである [Apache Flink](https://flink.apache.org/) との統合により、コンテキスト
-・データのビッグデータ分析を容易にします。Apache Flink は、無制限および有界のデータ・ストリーム上でステートフルな計算を
-行うためのフレームワークおよび分散処理エンジンです。Flink は、すべての一般的なクラスタ環境で実行され、メモリ内の速度と
-任意の規模で計算を実行するように設計されています。
+このチュートリアルは、[FIWARE Cosmos Orion Spark Connector](http://fiware-cosmos-spark.rtfd.io) の概要です。これにより、
+最も人気のある BigData プラットフォームの1つである [Apache Spark](https://spark.apache.org/) と統合され、
+コンテキスト全体でビッグデータ分析が容易になります。Apache Spark は、制限のないデータ・ストリームと制限のあるデータ・
+ストリームでステートフルな計算を行うためのフレームワークおよび分散処理エンジンです。Spark は、すべての一般的な
+クラスタ環境で実行され、メモリ内の速度と任意のスケールで計算を実行するように設計されています。
 
-チュートリアルでは [cUrl](https://ec.haxx.se/) コマンドを使用しますが、
-[Postman ドキュメント](https://fiware.github.io/tutorials.Big-Data-Flink/) としても利用可能です。
+チュートリアルでは全体で [cUrl](https://ec.haxx.se/) コマンドを使用しますが、Postman のドキュメントとしても利用できます:
 
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/fb0de86dea21e2073054)
-
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/e7c16fce79fa081ba529)
 
 ## コンテンツ
 
 <details>
-
 <summary><strong>詳細</strong></summary>
 
 -   [リアルタイム処理とビッグデータ分析](#real-time-processing-and-big-data-analysis)
 -   [アーキテクチャ](#architecture)
-    -   [Flink Cluster の設定](#flink-cluster-configuration)
+    -   [Spark Cluster の構成](#spark-cluster-configuration)
 -   [前提条件](#prerequisites)
     -   [Docker および Docker Compose](#docker-and-docker-compose)
     -   [Maven](#maven)
     -   [Cygwin for Windows](#cygwin-for-windows)
 -   [起動](#start-up)
--   [リアルタイム・プロセシング・オペレーション](#real-time-processing-operations)
-    -   [Flink 用の JAR ファイルのコンパイル](#compiling-a-jar-file-for-flink)
+-   [リアルタイム処理操作](#real-time-processing-operations)
+    -   [Spark 用の JAR ファイルのコンパイル](#compiling-a-jar-file-for-spark)
     -   [コンテキスト・データのストリームの生成](#generating-a-stream-of-context-data)
     -   [ロガー - コンテキスト・データのストリームの読み取り](#logger---reading-context-data-streams)
         -   [ロガー - JAR のインストール](#logger---installing-the-jar)
@@ -46,17 +41,16 @@
         -   [フィードバック・ループ - コンテキスト変更のサブスクライブ](#feedback-loop---subscribing-to-context-changes)
         -   [フィードバック・ループ - 出力の確認](#feedback-loop---checking-the-output)
         -   [フィードバック・ループ - コードの分析](#feedback-loop---analyzing-the-code)
--   [次のステップ](#next-steps)
 
 </details>
 
-<a name="real-time-processing-and-big-data-analysis"></a>
+<a name="real-time-processing-and-big-data-analysis"/>
 
 # リアルタイム処理とビッグデータ分析
 
-> "Who controls the past controls the future: who controls the present controls the past."
+> "You have to find what sparks a light in you so that you in your own way can illuminate the world."
 >
-> — George Orwell. "1984"
+> — Oprah Winfrey
 
 FIWARE に基づくスマート・ソリューションは、マイクロサービスを中心に設計されています。したがって、シンプルな
 アプリケーション (スーパーマーケット・チュートリアルなど) から、IoT センサやその他のコンテキスト・データ・プロバイダの
@@ -73,17 +67,18 @@ FIWARE に基づくスマート・ソリューションは、マイクロサー�
 処理できますが、システムが大きくなると、リスナーを圧倒し、潜在的にリソースをブロックし、更新が失われないようにするために
 別の手法が必要になります。
 
-**Apache Flink** は、データ・フロー・プロセスの委任を可能にする Java/Scala ベースのストリーム処理フレームワークです。
-したがって、イベントの到着時にデータを処理するために、追加の計算リソースを呼び出すことができます。 **Cosmos Flink**
-コネクタを使用すると、開発者はカスタム・ビジネスロジックを記述して、コンテキスト・データのサブスクリプション・イベントを
-リッスンし、コンテキスト・データのフローを処理できます。 Flink はこれらのアクションを他のワーカーに委任することができ、
-そこで必要に応じて順次または並行してアクションが実行されます。データフローの処理自体は、任意に複雑にすることができます。
+**Apache Spark** は、オープンソースの分散型汎用クラスタ・コンピューティング・フレームワークです。 暗黙的なデータ並列性と
+フォールト・トレランスを備えたクラスタ全体をプログラミングするためのインターフェイスを提供します。 **Cosmos Spark**
+コネクタを使用すると、開発者はカスタム・ビジネス・ロジックを記述して、コンテキスト・データのサブスクリプション・イベント
+をリッスンし、コンテキスト・データのフローを処理できます。Spark は、これらのアクションを他のワーカーに委任して、
+必要に応じて順次または並行してアクションを実行することができます。 データ・フロー処理自体は、任意に複雑になる可能性が
+あります。
 
-実際には、明らかに、既存のスーパーマーケット・シナリオは小さすぎてビッグデータ・ソリューションを使用する必要はありませんが、
-コンテキスト・データ・イベントの連続ストリームを処理する大規模ソリューションで必要となる可能性のある、リアルタイム処理の
-タイプを実証するための基盤として機能します。
+実際には、明らかに、既存のスーパーマーケットのシナリオは小さすぎて、ビッグデータ・ソリューションの使用を必要としません。
+しかし、コンテキスト・データ・イベントの連続ストリームを処理する大規模なソリューションで必要になる可能性のある
+リアルタイム処理のタイプを示すための基礎として機能します。
 
-<a name="architecture"></a>
+<a name="architecture"/>
 
 # アーキテクチャ
 
@@ -91,9 +86,9 @@ FIWARE に基づくスマート・ソリューションは、マイクロサー�
 ダミー IoT デバイス上に構築されます。 3つの FIWARE コンポーネントを使用します。
 [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/),
 [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) および Orion を
-[Apache Flink cluster](https://ci.apache.org/projects/flink/flink-docs-stable/concepts/runtime.html) クラスタに接続する
-ための [Cosmos Orion Flink Connector](https://fiware-cosmos-flink.readthedocs.io/en/latest/) です。Flink クラスタ自体は、
-実行を調整する単一の **JobManager** _master_ と、タスクを実行する単一の **TaskManager** _worker_ で構成されます。
+[Apache Spark cluster](https://spark.apache.org/docs/latest/cluster-overview.html) に接続するための
+[Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) です。Spark クラスタ自体は、
+実行を調整する単一の **Cluster Manager** _master_ と、タスクを実行する単一の **Worker Nodes** _worker_ で構成されます。
 
 Orion Context Broker と IoT Agent はどちらも、オープンソースの [MongoDB](https://www.mongodb.com/) テクノロジーに依存して、
 保持している情報の永続性を維持しています。また、[以前のチュートリアル](https://github.com/FIWARE/tutorials.IoT-Agent/)で
@@ -102,107 +97,84 @@ Orion Context Broker と IoT Agent はどちらも、オープンソースの [M
 したがって、全体的なアーキテクチャは次の要素で構成されます :
 
 -   独立したマイクロサービスとしての2つの **FIWARE Generic Enablers** :
-    -   FIWARE [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/)は、
-        [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信します
-    -   FIWARE [IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) は、ダミー IoT
-        デバイスから Ultralight 2.0 形式のノースバウンド測定値を受信し、Context Broker の
-        [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) リクエストに変換して、コンテキスト・
-        エンティティの状態を変更します
--   [Apache Flink cluster](https://ci.apache.org/projects/flink/flink-docs-stable/concepts/runtime.html) は、
-    単一の **JobManager** と単一の **TaskManager ** で構成されます
-    -   FIWARE [Cosmos Orion Flink Connector](https://fiware-cosmos-flink.readthedocs.io/en/latest/) は、
-        コンテキストの変更をサブスクライブし、リアルタイムでそれらの操作を実際に行うデータフローの一部として
-        デプロイされます
+    -   FIWARE [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) は、
+        [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/gitlab/NGSI-LD/NGSI-LD/raw/master/spec/updated/full_api.json)
+        を使用してリクエストを受信します
+    -   FIWARE [IoT Agent for UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) は、
+        [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/gitlab/NGSI-LD/NGSI-LD/raw/master/spec/updated/full_api.json)
+        を使用してサウスバウンド・リクエストを受信し、それらをデバイス用の
+        [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+        コマンドに変換します
+-   [Apache Spark cluster](https://spark.apache.org/docs/latest/cluster-overview.html) は、
+    単一の **ClusterManager** と **Worker Nodes** で構成されます
+    -   FIWARE [Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) は、
+        コンテキストの変更をサブスクライブし、リアルタイムで操作を行うデータフローの一部としてデプロイされます
 -   1つの [MongoDB](https://www.mongodb.com/) **データベース** :
     -   **Orion Context Broker** がデータ・エンティティ、サブスクリプション、レジストレーションなどの
         コンテキスト・データ情報を保持するために使用します
     -   **IoT Agent** がデバイスの URL やキーなどのデバイス情報を保持するために使用します
--   3つの**コンテキスト・プロバイダ** :
-    -   HTTP 上で実行される
-        [Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
-        を使用する、[ダミー IoT デバイス](https://github.com/FIWARE/tutorials.IoT-Sensors/tree/NGSI-v2) のセットとして
-        機能する Webサーバ
-    -   **在庫管理フロントエンド** は、このチュートリアルでは使用しません。次のことを行います :
-        -   ストア情報を表示し、ユーザがダミー IoT デバイスと対話できるようにします
-        -   各ストアで購入できる製品を表示します
-        -   ユーザが製品を "購入" して在庫数を減らすことを許可します
-    -   **Context Provider NGSI** プロキシは、このチュートリアルでは使用しません。次のことを行います :
-        -   [NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) を使用してリクエストを受信します
-        -   独自形式の独自 API を使用して、公開されているデータソースへのリクエストを行います
-        -   コンテキスト・データを[NGSI-v2](https://fiware.github.io/specifications/OpenAPI/ngsiv2) 形式で
-            Orion Context Broker に返します
+-   **チュートリアル・アプリケーション** は次のことを行います:
+    -   システム内のコンテキスト・エンティティを定義する静的な @context ファイルを提供します
+    -   [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+        を使用してダミーの[農業用 IoT デバイス](https://github.com/FIWARE/tutorials.IoT-Sensors/tree/NGSI-LD)
+        のセットとして機能します
 
 全体のアーキテクチャを以下に示します :
 
-![](https://fiware.github.io/tutorials.Big-Data-Flink/img/architecture.png)
+![](https://fiware.github.io/tutorials.Big-Data-Spark/img/Tutorial%20FIWARE%20Spark.png)
 
-要素間の相互作用はすべて HTTP リクエストによって開始されるため、エンティティはコンテナ化され、公開されたポートから
-実行できます。
+<a name="spark-cluster-configuration"/>
 
-Apache Flink クラスタの設定情報は、関連する `docker-compose.yml` ファイルの `jobmanager` および `taskmanager`
-セクションで確認できます :
-
-<a name="flink-cluster-configuration"></a>
-
-## Flink Cluster の設定
+## Spark Cluster の構成
 
 ```yaml
-jobmanager:
-    image: flink:1.9.0-scala_2.11
-    hostname: jobmanager
-    container_name: flink-jobmanager
+spark-master:
+    image: bde2020/spark-master:2.4.5-hadoop2.7
+    container_name: spark-master
     expose:
-        - "8081"
+        - "8080"
         - "9001"
     ports:
-        - "6123:6123"
-        - "8081:8081"
+        - "8080:8080"
+        - "7077:7077"
         - "9001:9001"
-    command: jobmanager
     environment:
-        - JOB_MANAGER_RPC_ADDRESS=jobmanager
+        - INIT_DAEMON_STEP=setup_spark
+        - "constraint:node==spark-master"
 ```
 
 ```yaml
-taskmanager:
-    image: flink:1.9.0-scala_2.11
-    hostname: taskmanager
-    container_name: flink-taskmanager
-    ports:
-        - "6121:6121"
-        - "6122:6122"
+spark-worker-1:
+    image: bde2020/spark-worker:2.4.5-hadoop2.7
+    container_name: spark-worker-1
     depends_on:
-        - jobmanager
-    command: taskmanager
-    links:
-        - "jobmanager:jobmanager"
+        - spark-master
+    ports:
+        - "8081:8081"
     environment:
-        - JOB_MANAGER_RPC_ADDRESS=jobmanager
+        - "SPARK_MASTER=spark://spark-master:7077"
+        - "constraint:node==spark-master"
 ```
 
-`jobmanager` コンテナは3つのポートでリッスンしています :
+`spark-master` コンテナは、三つのポートでリッスンしています:
 
--   ポート `8081` が公開されているため、Apache Flink ダッシュボードの Web フロントエンドを確認できます
--   ポート `9001` が公開されていまため、インストレーションがコンテキスト・データのサブスクリプションを
-    受信できます
--   ポート `6123` は標準の **JobManager** RPC ポートで、内部通信に使用されます
+-   ポート `8080` は、Apache Spark-Master ダッシュボードの Web フロントエンドを見ることができる
+    ように、公開されます
 
-`taskmanager` コンテナは2つのポートでリッスンしています :
+-   ポート `7070` は内部通信に使用されます
 
--   ポート `6121` と `6122` が使用され、RPC ポートは **TaskManager** によって、内部通信に使用されます
+`spark-worker-1` コンテナは、1つのポートで待機しています:
 
-Flinki クラスタ内のコンテナは、次のように単一の環境変数によって駆動されます。
+-   ポート `9001` は、インストレーションがコンテキスト・データのサブスクリプションを受信できるように、
+    公開されます
+-   ポート `8081` は、Apache Spark-Worker-1 ダッシュボードの Web フロントエンドを見ることができる
+　　ように、公開されます
 
-| キー                    | 値           | 説明                                                      |
-| ----------------------- | ------------ | --------------------------------------------------------- |
-| JOB_MANAGER_RPC_ADDRESS | `jobmanager` | タスク処理をコーディネートする _master_ Job Manager のURL |
-
-
-<a name="prerequisites"></a>
+<a name="prerequisites"/>
 
 # 前提条件
 
-<a name="docker-and-docker-compose"></a>
+<a name="docker-and-docker-compose"/>
 
 ## Docker および Docker Compose
 
@@ -215,7 +187,7 @@ Flinki クラスタ内のコンテナは、次のように単一の環境変数�
 -   Linux に Docker をインストールするには、[こちら](https://docs.docker.com/install/)の指示に従ってください
 
 **Docker Compose** は、マルチ・コンテナ Docker アプリケーションを定義および実行するためのツールです。一連の
-[YAML files](https://github.com/FIWARE/tutorials.Big-Data-Flink/tree/NGSI-LD/docker-compose) は、アプリケーション
+[YAML files](https://github.com/FIWARE/tutorials.Big-Data-Spark/blob/NGSI-LD/docker-compose.yml) は、アプリケーション
 に必要なサービスを構成するために使用されます。これは、すべてのコンテナ・サービスを単一のコマンドで起動できることを
 意味します。Docker Compose は、デフォルトで Docker for Windows および Docker for Mac の一部としてインストール
 されますが、Linux ユーザは[こちら](https://docs.docker.com/compose/install/)にある指示に従う必要があります。
@@ -230,7 +202,7 @@ docker version
 Docker バージョン18.03 以降および Docker Compose 1.21 以降を使用していることを確認し、必要に応じてアップグレード
 してください。
 
-<a name="maven"></a>
+<a name="maven"/>
 
 ## Maven
 
@@ -239,14 +211,14 @@ Docker バージョン18.03 以降および Docker Compose 1.21 以降を使用�
 ドキュメントを管理できます。Maven を使用して、依存関係を定義およびダウンロードし、コードをビルドして JAR ファイルに
 パッケージ化します。
 
-<a name="cygwin-for-windows"></a>
+<a name="cygwin-for-windows"/>
 
 ## Cygwin for Windows
 
 簡単な Bash スクリプトを使用してサービスを開始します。Windows ユーザは、[cygwin](http://www.cygwin.com/) を
 ダウンロードして、Windows 上の Linux ディストリビューションに類似したコマンドライン機能を提供する必要があります。
 
-<a name="start-up"></a>
+<a name="start-up"/>
 
 # 起動
 
@@ -255,17 +227,16 @@ Docker バージョン18.03 以降および Docker Compose 1.21 以降を使用�
 必要がある場合があることに注意してください :
 
 ```console
-git clone https://github.com/FIWARE/tutorials.Big-Data-Flink.git
-cd tutorials.Big-Data-Flink
+git clone https://github.com/FIWARE/tutorials.Big-Data-Spark.git
+cd tutorials.Big-Data-Spark
 git checkout NGSI-LD
-
 ./services create
 ```
 
 このコマンドは、以前のチュートリアルからシードデータをインポートし、起動時にダミー IoT センサをプロビジョニング
 します。
 
-システムを起動するには、次のコマンドを実行します :
+システムを起動するには、次のコマンドを実行します:
 
 ```console
 ./services start
@@ -273,174 +244,175 @@ git checkout NGSI-LD
 
 > :information_source: **注 :** クリーンアップしてやり直す場合は、次のコマンドを使用します :
 >
-> ```
+> ```console
 > ./services stop
 > ```
 
-<a name="real-time-processing-operations"></a>
+<a name="real-time-processing-operations"/>
 
-# リアルタイム・プロセシング・オペレーション
+# リアルタイム処理操作
 
-**Apache Flink** 内のデータフローは、
-[Flink ドキュメント](https://ci.apache.org/projects/flink/flink-docs-release-1.9/concepts/programming-model.html)
-で次のように定義されています。
+[Apache Spark のドキュメント](https://spark.apache.org/documentation.html) によると、Spark Streaming はコア Spark API
+の拡張であり、ライブ・データ・ストリームのスケーラブルで高スループットのフォールト・トレラントなストリーム処理を
+可能にします。データは、Kafka, Flume, Kinesis, TCP ソケットなどの多くのソースから取り込むことができ、map, reduce, join, 
+window などの高レベル関数で表現された複雑なアルゴリズムを使用して処理できます。最後に、処理されたデータを
+ファイルシステム、データベース、およびライブ・ダッシュボードにプッシュできます。
+実際、Spark の機械学習とグラフ処理アルゴリズムをデータ・ストリームに適用できます。
 
-> "Flink プログラムの基本的な構成要素はストリームと変換です。概念的には、ストリームはデータ・レコードの潜在的に終わりの
-> ないフローであり、変換は入力として1つ以上のストリームを受け取り、結果として1つ以上の出力ストリームを生成する操作です。
->
-> Flink プログラムは、実行されると、ストリームと変換オペレータで構成されるストリーミング・データフローにマッピング
-> されます。各データフローは、1つ以上のソースで始まり、1つ以上のシンクで終わります。 データフローは、任意の有向非巡回
-> グラフ (DAG) に似ています。反復の構造を介して特殊な形式のサイクルが許可されますが、ほとんどの場合、これを単純化するため
-> にこれを変更できます。"
+![](https://spark.apache.org/docs/latest/img/streaming-arch.png)
 
-![](https://fiware.github.io/tutorials.Big-Data-Flink/img/streaming-dataflow.png)
+内部的には、次のように動作します。Spark Streaming は、ライブ入力データ・ストリームを受信し、データをバッチに分割します。
+バッチは、Spark エンジンによって処理され、結果の最終ストリームがバッチで生成されます。
 
-つまり、ストリーミング・データフローを作成するには、次のものを指定する必要があります :
+![](https://spark.apache.org/docs/latest/img/streaming-flow.png)
+
+これは、ストリーミング・データフローを作成するには、以下を提供する必要があることを意味します:
 
 -   **Source Operator** としてコンテキスト・データを読み取るためのメカニズム
--   変換操作を定義するビジネスロジック
--   **Sink Operator**としてコンテキスト・データを Context Broker にプッシュバックするメカニズム
+-   変換操作 (transform operations) を定義するビジネスロジック
+-   **Sink Operator** としてコンテキスト・データを Context Broker にプッシュバックするメカニズム
 
-`orion-flink.connect.jar` は **Source** と **Sink** の両方の操作を提供します。 したがって、ストリーミング・データフローの
-パイプライン操作を接続するために必要な Scala コードを記述するだけです。処理コードは、flink クラスターにアップロードできる
-JAR ファイルにコンパイルできます。 以下に2つの例を詳しく説明します。このチュートリアルのすべてのソースコードは、
-[cosmos-examples](https://github.com/FIWARE/tutorials.Big-Data-Flink/tree/master/cosmos-examples) ディレクトリ内に
-あります。
+**Cosmos Spark** connector - `orion.spark.connector-1.2.2.jar` は、**Source** および **Sink** operators の両方を
+提供します。したがって、ストリーミング・データフロー・パイプライン操作を相互に接続するために必要な Scala コードを
+記述するだけです。処理コードは、Spark クラスタにアップロードできる JAR ファイルにコンパイルできます。
+以下に2つの例を詳しく説明します。このチュートリアルのすべてのソースコードは、
+[cosmos-examples](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/tree/master/cosmos-examples)
+ディレクトリにあります。
 
-その他の Flink 処理の例は、
-[Apache Flink サイト](https://ci.apache.org/projects/flink/flink-docs-release-1.9/getting-started) および
-[Flink Connector の例](https://fiware-cosmos-flink-examples.readthedocs.io/)にあります。
+その他の Spark 処理の例は、
+[Spark Connector の例](https://fiware-cosmos-spark-examples.readthedocs.io/) にあります。
 
-<a name="compiling-a-jar-file-for-flink"></a>
+<a name="compiling-a-jar-file-for-spark"/>
 
-### Flink 用の JAR ファイルのコンパイル
+### Spark 用の JAR ファイルのコンパイル
 
 サンプル JAR ファイルをビルドするために必要な前提条件を保持する既存の `pom.xml` ファイルが作成されました。
 
-Orion Flink Connector を使用するには、最初に Maven を使用してアーティファクト (artifact) としてコネクタ JAR を手動で
-インストールする必要があります :
+Orion Spark Connector を使用するには、最初に Maven を使用してアーティファクトとしてコネクタ JAR
+を手動でインストールする必要があります:
 
 ```console
 cd cosmos-examples
-curl -LO https://github.com/ging/fiware-cosmos-orion-flink-connector/releases/download/1.2.4/orion.flink.connector-1.2.4.jar
+curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.1/orion.spark.connector-1.2.2.jar
 mvn install:install-file \
-  -Dfile=./orion.flink.connector-1.2.4.jar \
+  -Dfile=./orion.spark.connector-1.2.2.jar \
   -DgroupId=org.fiware.cosmos \
-  -DartifactId=orion.flink.connector \
-  -Dversion=1.2.4 \
+  -DartifactId=orion.spark.connector \
+  -Dversion=1.2.2 \
   -Dpackaging=jar
 ```
 
-その後、同じディレクトリ内で `mvn package` コマンドを実行することでソースコードをコンパイルできます :
+その後、同じディレクトリ (`cosmos-examples`) 内で `mvn package` コマンドを実行することにより、
+ソースコードをコンパイルできます:
 
 ```console
-cd cosmos-examples
 mvn package
 ```
 
-`cosmos-examples-1.2.jar` という新しい JAR ファイルが `cosmos-examples/target` ディレクトリ内に作成されます。
+`cosmos-examples-1.2.2.jar` と呼ばれる新しい JAR ファイルが `cosmos-examples/target` ディレクトリ内に作成されます。
 
-<a name="generating-a-stream-of-context-data"></a>
+<a name="generating-a-stream-of-context-data"/>
 
 ### コンテキスト・データのストリームの生成
 
-このチュートリアルでは、コンテキストが定期的に更新されるシステムを監視する必要があります。これを行うには、ダミー IoT
-センサーを使用できます。`http://localhost:3000/device/monitor` のデバイス・モニターのページを開き、**Smart Door** の
-ロックを解除して、**Smart Lamp** をオンにします。 これは、ドロップ・ダウン・リストから適切なコマンドを選択し、`send`
-ボタンを押すことで実行できます。デバイスからの測定値のストリームは、同じページで見ることができます :
+このチュートリアルでは、コンテキストが定期的に更新されているシステムを監視する必要があります。 ダミー IoT センサを
+使用してこれを行うことができます。`http://localhost:3000/device/monitor` でデバイス・モニタ・ページを開き、
+**Tractor** の移動を開始します。これは、ドロップ・ダウン・リストから適切なコマンドを選択して `send` ボタンを押すことで
+実行できます。デバイスからの測定値の流れは、同じページに表示されます:
 
-![](https://fiware.github.io/tutorials.Big-Data-Flink/img/door-open.gif)
+![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif)
 
-<a name="logger---reading-context-data-streams"></a>
+<a name="logger---reading-context-data-streams"/>
 
 ## ロガー - コンテキスト・データのストリームの読み取り
 
-最初の例では、Orion Context Broker から通知を受信するために、`OrionSource` オペレータを使用します。具体的には、
-この例では、各タイプのデバイスが1分で送信する通知の数をカウントします。 サンプルのソースコードは
-[org/fiware/cosmos/tutorial/Logger.scala](https://github.com/FIWARE/tutorials.Big-Data-Flink/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Logger.scala)
+最初の例では、Orion Context Broker からノーティフィケーションを受信するために `OrionReceiver` operator を使用します。
+具体的には、この例では、各タイプのデバイスが1分間に送信するノーティフィケーションの数をカウントします。
+この例のソースコードは、
+[org/fiware/cosmos/tutorial/Logger.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Logger.scala)
 にあります。
 
-<a name="logger---installing-the-jar"></a>
+<a name="logger---installing-the-jar"/>
 
 ### ロガー - JAR のインストール
 
-`http://localhost:8081/#/submit` を開きます
+必要に応じてコンテナを再起動し、ワーカー・コンテナにアクセスします:
 
-![](https://fiware.github.io/tutorials.Big-Data-Flink/img/submit-logger.png)
+```console
+docker exec -it spark-worker-1 bin/bash
+```
 
-新しいジョブを設定します
+そして、次のコマンドを実行して、生成された JAR パッケージを Spark クラスタで実行します:
 
--   **Filename:** `cosmos-examples-1.2.jar`
--   **Entry Class:** `org.fiware.cosmos.tutorial.Logger`
+```console
+/spark/bin/spark-submit \
+--class  org.fiware.cosmos.tutorial.LoggerLD \
+--master  spark://spark-master:7077 \
+--deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.2.jar \
+--conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
+```
 
-<a name="logger---subscribing-to-context-changes"></a>
+<a name="logger---subscribing-to-context-changes"/>
 
 ### ロガー - コンテキスト変更のサブスクライブ
 
-動的コンテキスト・システムが起動して実行されると (`Logger` を実行)、**Flink** にコンテキストの変更を通知する
-必要があります。
+動的コンテキスト・システムが稼働し始めたら (Spark クラスタに `Logger` ジョブをデプロイしました)、コンテキストの変更を
+**Spark** にノーティフィケーションする必要があります。
 
-これは、Orion Context Broker の `/v2/subscription` エンドポイントに POST リクエストを行うことで実行できます。
+これは、Orion Context Broker の `/v2/subscription` エンドポイントに POST リクエストを行うことによって行われます。
 
--   `fiware-service` および `fiware-servicepath` ヘッダは、これらの設定を使用してプロビジョニングされている
-    ため、接続された IoT センサからの測定値のみをリッスンするようにサブスクリプションをフィルター処理する
-    ために使用されます
+-   `NGSILD-Tenant` ヘッダは、これらの設定を使用してプロビジョニングされているため、接続された IoT センサからの測定値
+    のみをリッスンするようにサブスクリプションをフィルタリングするために使用されます
 
--   通知 URL は、Flink プログラムがリッスンしている URL と一致する必要があります
+-   ノーティフィケーション `uri` は、Spark プログラムがリッスンしているものと一致する必要があります
 
--   `throttling` 値は、変更がサンプリングされるレートを定義します
+-   この `throttling` 値は、変更がサンプリングされるレートを定義します
 
-<a name="one-request"></a>
+別のターミナルを開き、次のコマンドを実行します:
 
-#### :one: リクエスト :
+#### :one: リクエスト:
 
 ```console
-curl -iX POST 'http://localhost:1026/v2/subscriptions/' \
--H 'Content-Type: application/json' \
--H 'fiware-service: openiot' \
--H 'fiware-servicepath: /' \
+curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+-H 'Content-Type: application/ld+json' \
+-H 'NGSILD-Tenant: openiot' \
 --data-raw '{
-  "description": "Notify Flink of all context changes",
-  "subject": {
-    "entities": [
-      {
-        "idPattern": ".*"
-      }
-    ]
-  },
+  "description": "Notify Spark of all animal and farm vehicle movements",
+  "type": "Subscription",
+  "entities": [{"type": "Tractor"}, {"type": "Device"}],
+  "watchedAttributes": ["location"],
   "notification": {
-    "http": {
-      "url": "http://jobmanager:9001"
+    "attributes": ["location"],
+    "format": "normalized",
+    "endpoint": {
+      "uri": "http://spark-worker-1:9001",
+      "accept": "application/json"
     }
-  }
+  },
+   "@context": "http://context-provider:3000/data-models/ngsi-context.jsonld"
 }'
 ```
 
-レスポンスは **201 - Created** になります
+レスポンスは、**`201 - Created`** です。
 
-サブスクリプションが作成されている場合、`/v2/subscriptions` エンドポイントに対して GET リクエストを行うことで、
+サブスクリプションが作成されている場合は、`/ngsi-ld/v1/subscriptions/` エンドポイントに対して GET リクエストを行うことで、
 サブスクリプションが起動しているかどうかを確認できます。
 
-<a name="two-request"></a>
-
-#### :two: リクエスト :
+#### :two: リクエスト:
 
 ```console
 curl -X GET \
-'http://localhost:1026/v2/subscriptions/' \
--H 'fiware-service: openiot' \
--H 'fiware-servicepath: /'
+'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+-H 'NGSILD-Tenant: openiot'
 ```
 
-<a name="response"></a>
-
-#### レスポンス :
+#### レスポンス:
 
 ```json
 [
     {
         "id": "5d76059d14eda92b0686f255",
-        "description": "Notify Flink of all context changes",
+        "description": "Notify Spark of all context changes",
         "status": "active",
         "subject": {
             "entities": [
@@ -458,7 +430,7 @@ curl -X GET \
             "attrs": [],
             "attrsFormat": "normalized",
             "http": {
-                "url": "http://jobmanager:9001"
+                "url": "http://spark-worker-1:9001"
             },
             "lastSuccess": "2019-09-09T09:36:33.00Z",
             "lastSuccessCode": 200
@@ -467,252 +439,267 @@ curl -X GET \
 ]
 ```
 
-レスポンスの `notification` セクション内で、サブスクリプションの正常性を説明するいくつかの追加の  `attributes`
-を確認できます
+レスポンスの `notification` セクション内に、サブスクリプションの状態を説明するいくつかの追加 `attributes` が表示されます。
 
-サブスクリプションの基準が満たされている場合、`timesSent` は `0` より大きくなければなりません。ゼロの値は、
-サブスクリプションの `subject` が正しくないか、サブスクリプションが間違った `fiware-service-path` または
-`fiware-service` ヘッダで作成されたことを示します。
+サブスクリプションの基準が満たされている場合は、`timesSent` は、`0` より大きい必要があります。ゼロの場合は、
+サブスクリプションの `subject` が正しくないか、サブスクリプションが間違った `NGSILD-Tenant` ヘッダで作成されたことを
+示します。
 
-`lastNotification` は最新のタイムスタンプである必要があります。そうでない場合、デバイスは定期的にデータを
-送信していません。**Smart Door** のロックを解除し、**Smart Lamp** をオンにしてください。
+`lastNotification` は、最近のタイムスタンプでなければなりません。そうでない場合は、デバイスが定期的にデータを
+送信していません。**Tractor** を動かしてスマート・ファームをアクティブ化することを忘れないでください。
 
-`lastSuccess` は `lastNotification` の日付と一致する必要があります-そうでない場合、**Cosmos** はサブスクリプション
-を適切に受信していません。ホスト名とポートが正しいことを確認してください。
+`lastSuccess` は、`lastNotification` date に一致している必要があります。そうでない場合は、**Cosmos** は、
+適切にサブスクリプションを受信していません。ホスト名とポートが正しいことを確認してください。
 
-最後に、サブスクリプションの `status` が `active` であることを確認します。有効期限が切れたサブスクリプションは
-実行されません。
+最後に、サブスクリプションの `status` が `active` であるかどうかを確認します。期限切れのサブスクリプションは起動しません。
 
-<a name="logger---checking-the-output"></a>
+<a name="logger---checking-the-output"/>
 
 ### ロガー - 出力の確認
 
-サブスクリプションを1分間実行したままにして、次を実行します :
+サブスクリプションを**1分間**実行したままにします。次に、Spark ジョブを実行したコンソールでの出力は次のようになります:
 
-```console
-docker logs flink-taskmanager -f --until=60s > stdout.log 2>stderr.log
-cat stderr.log
+```text
+Sensor(Tractor,19)
+Sensor(Device,49)
 ```
 
-サブスクリプションを作成すると、コンソールの出力は次のようになります :
-
-```
-Sensor(Bell,3)
-Sensor(Door,4)
-Sensor(Lamp,7)
-Sensor(Motion,6)
-```
-
-<a name="logger---analyzing-the-code"></a>
+<a name="logger---analyzing-the-code"/>
 
 ### ロガー - コードの分析
 
 ```scala
 package org.fiware.cosmos.tutorial
+import org.apache.spark._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.fiware.cosmos.orion.spark.connector._
 
 
-import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
-import org.apache.flink.streaming.api.windowing.time.Time
-import org.fiware.cosmos.orion.flink.connector.{OrionSource}
-
-object Logger{
+object LoggerLD{
 
   def main(args: Array[String]): Unit = {
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
-    // Create Orion Source. Receive notifications on port 9001
-    val eventStream = env.addSource(new OrionSource(9001))
+
+    val conf = new SparkConf().setAppName("Example 1")
+    val ssc = new StreamingContext(conf, Seconds(60))
+    // Create Orion Receiver. Receive notifications on port 9001
+    val eventStream = ssc.receiverStream(new NGSILDReceiver(9001))
 
     // Process event stream
+    eventStream
+      .flatMap(event => event.entities)
+      .map(ent => {
+        new Sensor(ent.`type`)
+      })
+      .countByValue()
+      .window(Seconds(60))
+      .print()
 
-    val processedDataStream = eventStream
-    .flatMap(event => event.entities)
-    .map(entity => new Sensor(entity.`type`,1))
-    .keyBy("device")
-    .timeWindow(Time.seconds(60))
-    .sum(1)
 
-    // print the results with a single thread, rather than in parallel
-    processedDataStream.print().setParallelism(1)
-    env.execute("Socket Window NgsiEvent")
+    ssc.start()
+    ssc.awaitTermination()
   }
-  case class Sensor(device: String, sum: Int)
+  case class Sensor(device: String)
 }
 ```
 
-プログラムの最初の行は、コネクタを含む必要な依存関係をインポートすることを目的としています。次のステップは、コネクタが
-提供するクラスを使用して `OrionSource` のインスタンスを作成し、Flink が提供する環境に追加することです。
+プログラムの最初の行は、コネクタを含む必要な依存関係をインポートすることを目的としています。次のステップは、
+コネクタによって提供されるクラスを使用して `NGSILDReceiver` のインスタンスを作成し、それを Spark
+によって提供される環境に追加することです。
 
-`OrionSource` コンストラクタはパラメータとしてポート番号 (`9001`) を受け入れます。このポートは、Orion からの
-サブスクリプション通知をリッスンするために使用され、`NgsiEvent` オブジェクトの `DataStream` に変換されます。これらの
-オブジェクトの定義は、
-[Orion-Flink Connector ドキュメント](https://github.com/ging/fiware-cosmos-orion-flink-connector/blob/master/README.md#orionsource)
+`NGSILDReceiver` コンストラクタは、パラメータとしてポート番号 (`9001`) を受け入れます。このポートは、Orion から来る
+サブスクリプションのノーティフィケーションをリッスンするために使用され、`NgsiEvent` オブジェクトの `DataStream`
+に変換されます。これらのオブジェクトの定義は、
+[Orion-Spark Connector ドキュメント](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionreceiver)
 に記載されています。
 
-ストリーム処理は、5つの個別のステップで構成されています。最初のステップ (`flatMap()`) は、一定期間内に受信したすべての
-NGSI イベントのエンティティ・オブジェクトをまとめるために実行されます。その後、コードはそれらを `map()` 操作で繰り返し、
-目的の属性を抽出します。この場合、センサの `type` (`Door`, `Motion`, `Bell` or `Lamp`) に関心があります。
+ストリーム処理は、5つの別々のステップで構成されています。最初のステップ (`flatMap()`) は、一定期間に受信したすべての
+NGSI イベントのエンティティ・オブジェクトをまとめるために実行されます。その後、コードは (`map()` 操作を使用して)
+それらを反復処理し、目的の属性を抽出します。この場合、我々は、センサ `type` (`Device` または `Tractor`)
+に興味があります。
 
-各反復内で、必要なプロパティを持つカスタム・オブジェクトを作成します : センサの `type` と各通知の増分。このために、
-次のようにケース・クラスを定義できます :
-
-```scala
-case class Sensor(device: String, sum: Int)
-```
-
-その後、作成されたオブジェクトをデバイスのタイプ (`keyBy("device")`) でグループ化し、それらに対して `timeWindow()` や
-`sum()` などの操作を実行できます。
-
-処理後、結果がコンソールに出力されます :
+各反復内で、必要なプロパティであるセンサ `type` を使用してカスタム・オブジェクトを作成します。この目的のために、
+次のようにケース class を定義できます:
 
 ```scala
-processedDataStream.print().setParallelism(1)
+case class Sensor(device: String)
 ```
 
-<a name="feedback-loop---persisting-context-data"></a>
+その後、作成されたオブジェクトをデバイスのタイプ (`countByValue()`) でカウントし、それらに対して `window()`
+などの操作を実行できます。
+
+処理後、結果はコンソールに出力されます:
+
+```scala
+processedDataStream.print()
+```
+
+<a name="feedback-loop---persisting-context-data"/>
 
 ## フィードバック・ループ - コンテキスト・データの永続化
 
-2番目の例では、モーション・センサが動きを検出するとランプをオンにします。
+2番目の例では、土壌湿度が低すぎる場合に水栓をオンにし、土壌湿度が通常のレベルに戻ったときに水栓をオフに戻します。
+このようにして、土壌の湿度は常に適切なレベルに保たれます。
 
-データフロー・ストリームは、通知を受信するために `OrionSource` オペレータを使用し、モーション・センサにのみ応答する
-ように入力をフィルタし、`OrionSink` を使用して処理されたコンテキストを Context Broker にプッシュします。サンプルの
-ソースコードは
-[org/fiware/cosmos/tutorial/Feedback.scala](https://github.com/FIWARE/tutorials.Big-Data-Flink/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/Feedback.scala)
+
+データフロー・ストリームは、ノーティフィケーションを受信するために `NGSILDReceiver` operator を使用し、入力を
+フィルタリングして **soil humidity sensor** にのみレスポンスするように入力をフィルタ処理し、次に `OrionSink`
+を使用して処理されたコンテキストを Context Broker にプッシュバックします。この例のソースコードは
+[org/fiware/cosmos/tutorial/Feedback.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/FeedbackLD.scala)
 にあります。
 
-<a name="feedback-loop---installing-the-jar"></a>
+<a name="feedback-loop---installing-the-jar"/>
 
 ### フィードバック・ループ - JAR のインストール
 
-`http://localhost:8081/#/job/running` を開きます
+```console
+/spark/bin/spark-submit  \
+--class  org.fiware.cosmos.tutorial.FeedbackLD \
+--master  spark://spark-master:7077 \
+--deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.2.jar \
+--conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
+```
 
-![](https://fiware.github.io/tutorials.Big-Data-Flink/img/running-jobs.png)
-
-実行中のジョブ (存在する場合) を選択し、**Cancel Job**  をクリックします
-
-その後、`http://localhost:8081/#/submit` を開きます
-
-![](https://fiware.github.io/tutorials.Big-Data-Flink/img/submit-feedback.png)
-
-新しいジョブを設定します
-
--   **Filename:** `cosmos-examples-1.2.jar`
--   **Entry Class:** `org.fiware.cosmos.tutorial.Feedback`
-
-<a name="feedback-loop---subscribing-to-context-changes"></a>
+<a name="feedback-loop---subscribing-to-context-changes"/>
 
 ### フィードバック・ループ - コンテキスト変更のサブスクライブ
 
-以前の例を実行していない場合は、新しいサブスクリプションを設定する必要があります。モーション・センサが動きを検出した
-ときにのみ通知をトリガーするように、より限定したサブスクリプションを設定できます。
+この例を実行するには、新しいサブスクリプションを設定する必要があります。 サブスクリプションは、
+土壌湿度センサのコンテキストの変化をリッスンしています。
 
-> **注 :** 以前のサブスクリプションが既に存在する場合、2番目のより限定した Motion のみのサブスクリプションを作成する
-> この手順は不要です。Scala タスク自体のビジネスロジック内にフィルタがあります。
-
+#### :three: Request:
 
 ```console
-curl -iX POST \
-  'http://localhost:1026/v2/subscriptions' \
-  -H 'Content-Type: application/json' \
-  -H 'fiware-service: openiot' \
-  -H 'fiware-servicepath: /' \
-  -d '{
-  "description": "Notify Flink of all context changes",
-  "subject": {
-    "entities": [
-      {
-        "idPattern": "Motion.*"
-      }
-    ]
-  },
+curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+-H 'Content-Type: application/ld+json' \
+-H 'NGSILD-Tenant: openiot' \
+--data-raw '{
+  "description": "Notify Spark of changes of Soil Humidity",
+  "type": "Subscription",
+  "entities": [{"type": "SoilSensor"}],
+  "watchedAttributes": ["humidity"],
   "notification": {
-    "http": {
-      "url": "http://taskmanger:9001"
+    "attributes": ["humidity"],
+    "format": "normalized",
+    "endpoint": {
+      "uri": "http://spark-worker-1:9001",
+      "accept": "application/json"
     }
-  }
+  },
+   "@context": "http://context-provider:3000/data-models/ngsi-context.jsonld"
 }'
 ```
 
-<a name="feedback-loop---checking-the-output"></a>
+サブスクリプションが作成されている場合は、`/ngsi-ld/v1/subscriptions/` エンドポイントに GET
+リクエストを送信することで、サブスクリプションが起動しているかどうかを確認できます。
+
+#### :four: Request:
+
+```console
+curl -X GET \
+'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
+-H 'NGSILD-Tenant: openiot'
+```
+
+<a name="feedback-loop---checking-the-output"/>
 
 ### フィードバック・ループ - 出力の確認
 
-`http://localhost:3000/device/monitor` を開きます
+`http://localhost:3000/device/monitor` に移動します。
 
-いずれかのストア内で、ドアのロックを解除して待機します。ドアが開いてモーション・センサがトリガーされると、ランプが
-直接オンになります。
+Farm001 の温度を上げ、湿度値が35を下回るまで待ちます。そうすると、水栓が自動的にオンになり、
+土壌の湿度が上がります。 湿度が50を超えると、水栓も自動的にオフになります。
 
-<a name="feedback-loop---analyzing-the-code"></a>
+<a name="feedback-loop---analyzing-the-code"/>
 
 ### フィードバック・ループ - コードの分析
 
 ```scala
 package org.fiware.cosmos.tutorial
 
+import org.apache.spark._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.fiware.cosmos.orion.spark.connector._
 
-import org.apache.flink.streaming.api.scala.{StreamExecutionEnvironment, _}
-import org.apache.flink.streaming.api.windowing.time.Time
-import org.fiware.cosmos.orion.flink.connector._
-
-
-object Feedback{
-  final val CONTENT_TYPE = ContentType.Plain
-  final val METHOD = HTTPMethod.POST
-  final val CONTENT = "{  \"on\": {      \"type\" : \"command\",      \"value\" : \"\"  }}"
-  final val HEADERS = Map("fiware-service" -> "openiot","fiware-servicepath" -> "/","Accept" -> "*/*")
-
+object FeedbackLD {
+  final val CONTENT_TYPE = ContentType.JSON
+  final val METHOD = HTTPMethod.PATCH
+  final val CONTENT = "{\n  \"type\" : \"Property\",\n  \"value\" : \" \" \n}"
+  final val HEADERS = Map(
+    "NGSILD-Tenant" -> "openiot",
+    "Link" -> "<http://context-provider:3000/data-models/ngsi-context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\""
+  )
+  final val LOW_THRESHOLD = 35
+  final val HIGH_THRESHOLD = 50
   def main(args: Array[String]): Unit = {
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
-  // Create Orion Source. Receive notifications on port 9001
-  val eventStream = env.addSource(new OrionSource(9001))
+
+    val conf = new SparkConf().setAppName("Feedback")
+    val ssc = new StreamingContext(conf, Seconds(10))
+
+    // Create Orion Receiver. Receive notifications on port 9001
+    val eventStream = ssc.receiverStream(new NGSILDReceiver(9001))
 
     // Process event stream
-  val processedDataStream = eventStream
-      .flatMap(event => event.entities)
-      .filter(entity=>(entity.attrs("count").value == "1"))
-      .map(entity => new Sensor(entity.id))
-      .keyBy("id")
-      .timeWindow(Time.seconds(5),Time.seconds(2))
-      .min("id")
+    val processedDataStream = eventStream.flatMap(event => event.entities)
+      .filter(ent => ent.`type` == "SoilSensor")
 
-    // print the results with a single thread, rather than in parallel
-  processedDataStream.printToErr().setParallelism(1)
+    /* High humidity */
+    val highHumidity = processedDataStream
+      .filter(ent =>  (ent.attrs("humidity") != null) && (ent.attrs("humidity")("value").asInstanceOf[BigInt] > HIGH_THRESHOLD))
+      .map(ent => (ent.id,ent.attrs("humidity")("value")))
 
-    val sinkStream = processedDataStream.map(node => {
-      new OrionSinkObject("urn:ngsi-ld:Lamp"+ node.id.takeRight(3)+ "@on","http://${IP}:3001/iot/lamp"+ node.id.takeRight(3),CONTENT_TYPE,METHOD)
+    val highSinkStream= highHumidity.map(sensor => {
+      OrionSinkObject(CONTENT,"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/off",CONTENT_TYPE,METHOD,HEADERS)
     })
-    OrionSink.addSink(sinkStream)
-    env.execute("Socket Window NgsiEvent")
-  }
 
-  case class Sensor(id: String)
+    highHumidity.map(sensor => "Sensor" + sensor._1 + " has detected a humidity level above " + HIGH_THRESHOLD + ". Turning off water faucet!").print()
+    OrionSink.addSink( highSinkStream )
+
+
+    /* Low humidity */
+    val lowHumidity = processedDataStream
+      .filter(ent => (ent.attrs("humidity") != null) && (ent.attrs("humidity")("value").asInstanceOf[BigInt] < LOW_THRESHOLD))
+      .map(ent => (ent.id,ent.attrs("humidity")("value")))
+
+    val lowSinkStream= lowHumidity.map(sensor => {
+      OrionSinkObject(CONTENT,"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/on",CONTENT_TYPE,METHOD,HEADERS)
+    })
+
+    lowHumidity.map(sensor => "Sensor" + sensor._1 + " has detected a humidity level below " + LOW_THRESHOLD + ". Turning on water faucet!").print()
+    OrionSink.addSink( lowSinkStream )
+
+    ssc.start()
+    ssc.awaitTermination()
+  }
 }
 ```
 
-ご覧のとおり、コードは以前の例に似ています。主な違いは、処理されたデータを **`OrionSink`** を介して Context Broker
+ご覧のとおり、前の例と似ています。主な違いは、処理されたデータを **`OrionSink`** を介して Context Broker
 に書き戻すことです。
 
-**`OrionSinkObject`** の引数は次のとおりです :
+**`OrionSinkObject`** の引数は次のとおりです:
 
--   **Message**: `"{ \"on\": { \"type\" : \"command\", \"value\" : \"\" }}"`. 'on' コマンドを送信します
--   **URL**: `"http://localhost:1026/v2/entities/Lamp:"+node.id.takeRight(3)+"/attrs"`.  TakeRight(3) は部屋の番号を
-    取得します。例 : '001'
--   **Content Type**: `ContentType.Plain`.
--   **HTTP Method**: `HTTPMethod.POST`.
--   **Headers**: `Map("fiware-service" -> "openiot","fiware-servicepath" -> "/","Accept" -> "*/*")`. オプション・パラメータ
-    HTTP リクエストに必要なヘッダを追加します。
-
-<a name="next-steps"></a>
+-   **Message**: `"{\n \"on\": {\n \"type\" : \"command\",\n \"value\" : \"\"\n }\n}"`. 'on' コマンドを送信します
+-   **URL**: `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/on"` or `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/off"`, depending on whether we are turning on or off the water faucet. TakeRight(3) gets the number of
+    the sensor, for example '001'.
+-   **Content Type**: `ContentType.JSON`.
+-   **HTTP Method**: `HTTPMethod.PATCH`.
+-   **Headers**: `Map("NGSILD-Tenant" -> "openiot", "Link" -> "<http://context-provider:3000/data-models/ngsi-context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\"" )`.
+    オプション・パラメータ。HTTP リクエストに必要なヘッダを追加します。
 
 # 次のステップ
 
+データ処理エンジンとして Flink を使用したい場合は、
+[この Flink 用チュートリアル](https://github.com/ging/tutorials.Big-Data-Analysis) も利用できます。
+
+このチュートリアルでデータに対して実行される操作は非常に単純でした。機械学習を使用してリアルタイム予測を実行する
+シナリオを設定する方法を知りたい場合は、ベルリンで開催された FIWARE Global Summit (2019) で発表された
+[デモ](https://github.com/ging/fiware-global-summit-berlin-2019-ml/) をご覧ください。
+
 高度な機能を追加することで、アプリケーションに複雑さを加える方法を知りたいですか？ このシリーズの
-[他のチュートリアル](https://www.letsfiware.jp/fiware-tutorials)を読むことで見つけることができます
+[他のチュートリアル](https://www.letsfiware.jp/ngsi-ld-tutorials)を読むことで見つけることができます
 
 ---
 
-<a name="licensse"></a>
-
 ## License
 
-[MIT](LICENSE) © 2020 FIWARE Foundation e.V.
+[MIT](LICENSE) © 2021 FIWARE Foundation e.V.
