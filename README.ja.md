@@ -235,8 +235,9 @@ Docker バージョン18.03 以降および Docker Compose 1.21 以降を使用�
 必要がある場合があることに注意してください :
 
 ```console
-git clone https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial.git
-cd fiware-cosmos-orion-spark-connector-tutorial
+git clone https://github.com/FIWARE/tutorials.Big-Data-Spark.git
+cd tutorials.Big-Data-Spark
+checkout NGSI-v2
 ./services create
 ```
 
@@ -261,7 +262,7 @@ cd fiware-cosmos-orion-spark-connector-tutorial
 
 [Apache Spark のドキュメント](https://spark.apache.org/documentation.html) によると、Spark Streaming はコア Spark API
 の拡張であり、ライブ・データ・ストリームのスケーラブルで高スループットのフォールト・トレラントなストリーム処理を
-可能にします。データは、Kafka, Flume, Kinesis, TCP ソケットなどの多くのソースから取り込むことができ、map, reduce, join, 
+可能にします。データは、Kafka, Flume, Kinesis, TCP ソケットなどの多くのソースから取り込むことができ、map, reduce, join,
 window などの高レベル関数で表現された複雑なアルゴリズムを使用して処理できます。最後に、処理されたデータを
 ファイルシステム、データベース、およびライブ・ダッシュボードにプッシュできます。
 実際、Spark の機械学習とグラフ処理アルゴリズムをデータ・ストリームに適用できます。
