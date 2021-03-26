@@ -171,15 +171,15 @@ The `spark-worker-1` container is listening on one port:
 To keep things simple, all components will be run using [Docker](https://www.docker.com). **Docker** is a container
 technology which allows to different components isolated into their respective environments.
 
--   To install Docker on Windows follow the instructions [here](https://docs.docker.com/docker-for-windows/)
--   To install Docker on Mac follow the instructions [here](https://docs.docker.com/docker-for-mac/)
--   To install Docker on Linux follow the instructions [here](https://docs.docker.com/install/)
+-   To install Docker on Windows follow the instructions [here](https://docs.docker.com/docker-for-windows)
+-   To install Docker on Mac follow the instructions [here](https://docs.docker.com/docker-for-mac)
+-   To install Docker on Linux follow the instructions [here](https://docs.docker.com/install)
 
 **Docker Compose** is a tool for defining and running multi-container Docker applications. A series of
-[YAML files](https://github.com/FIWARE/tutorials.Big-Data-Spark/blob/NGSI-LD/docker-compose.yml) are used to configure the
-required services for the application. This means all container services can be brought up in a single command. Docker
-Compose is installed by default as part of Docker for Windows and Docker for Mac, however Linux users will need to
-follow the instructions found [here](https://docs.docker.com/compose/install/)
+[YAML files](https://github.com/FIWARE/tutorials.Big-Data-Spark/blob/NGSI-LD/docker-compose.yml) are used to configure
+the required services for the application. This means all container services can be brought up in a single command.
+Docker Compose is installed by default as part of Docker for Windows and Docker for Mac, however Linux users will
+need to follow the instructions found [here](https://docs.docker.com/compose/install)
 
 You can check your current **Docker** and **Docker Compose** versions using the following commands:
 
@@ -260,7 +260,7 @@ detailed below, all the source code for this tutorial can be found within the
 directory.
 
 Further Spark processing examples can be found on
-[Spark Connector Examples](https://fiware-cosmos-spark-examples.readthedocs.io/).
+[Spark Connector Examples](https://fiware-cosmos-spark-examples.readthedocs.io).
 
 ### Compiling a JAR file for Spark
 
@@ -280,7 +280,10 @@ mvn install:install-file \
   -Dpackaging=jar
 ```
 
-Thereafter the source code can be compiled by running the `mvn package` command within the same directory
+> :information_source: **Note:** If you executed the command `./services create`, the script automatically download the
+> corresponding `orion.spark.connector-1.2.2.jar` file into the `cosmos-example` folder.
+
+Thereafter, the source code can be compiled by running the `mvn package` command within the same directory
 (`cosmos-examples`):
 
 ```console
@@ -291,13 +294,16 @@ A new JAR file called `cosmos-examples-1.2.2.jar` will be created within the `co
 
 ### Generating a stream of Context Data
 
-For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated. The
-dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor` and
-start a **Tractor** moving. This can be done by selecting an appropriate the command from
-the drop down list and pressing the `send` button. The stream of measurements coming from the devices can then be seen
-on the same page:
+For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated.
+The dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor`
+and start a **Tractor** moving. This can be done by selecting an appropriate the command from the drop down list and
+pressing the `send` button. The stream of measurements coming from the devices can then be seen on the same page:
 
-![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif)
+![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif) MISSING
+
+> :information_source: **Note:** By default, we are using the port 3000 to access the dummy IoT Sensor, this
+> information is detailed in the `.env` configuration file. You can change this port if you already have a service
+> running on that port.
 
 ## Logger - Reading Context Data Streams
 
@@ -413,7 +419,7 @@ Within the `notification` section of the response, you can see several additiona
 of the subscription.
 
 If the criteria of the subscription have been met, `timesSent` should be greater than `0`. A zero value would indicate
-that the `subject` of the subscription is incorrect or the subscription has created with the wrong `NGSILD-Tenant`
+that the `subject` of the subscription is incorrect, or the subscription has created with the wrong `NGSILD-Tenant`
 header.
 
 The `lastNotification` should be a recent timestamp - if this is not the case, then the devices are not regularly
@@ -470,8 +476,8 @@ object LoggerLD{
 }
 ```
 
-The first lines of the program are aimed at importing the necessary dependencies, including the connector. The next step
-is to create an instance of the `NGSILDReceiver` using the class provided by the connector and to add it to the
+The first lines of the program are aimed at importing the necessary dependencies, including the connector. The next
+step is to create an instance of the `NGSILDReceiver` using the class provided by the connector and to add it to the
 environment provided by Spark.
 
 The `NGSILDReceiver` constructor accepts a port number (`9001`) as a parameter. This port is used to listen to the
@@ -480,12 +486,12 @@ these objects can be found within the
 [Orion-Spark Connector documentation](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionreceiver).
 
 The stream processing consists of five separate steps. The first step (`flatMap()`) is performed in order to put
-together the entity objects of all the NGSI Events received in a period of time. Thereafter the code iterates over them
-(with the `map()` operation) and extracts the desired attributes. In this case, we are interested in the sensor `type`
-(`Device` or `Tractor`).
+together the entity objects of all the NGSI Events received in a period of time. Thereafter, the code iterates over
+them (with the `map()` operation) and extracts the desired attributes. In this case, we are interested in the sensor
+`type` (`Device` or `Tractor`).
 
-Within each iteration, we create a custom object with the property we need: the sensor `type`. For this purpose, we can
-define a case class as shown:
+Within each iteration, we create a custom object with the property we need: the sensor `type`. For this purpose, we
+can define a case class as shown:
 
 ```scala
 case class Sensor(device: String)
@@ -502,9 +508,12 @@ processedDataStream.print()
 
 ## Feedback Loop - Persisting Context Data
 
-The second example turns on a water faucet when the soil humidity is too low and turns it back off it when the soil humidity it is back to normal levels. This way, the soil humidity is always kept at an adequate level.
+The second example turns on a water faucet when the soil humidity is too low and turns it back off it when the soil
+humidity it is back to normal levels. This way, the soil humidity is always kept at an adequate level.
 
-The dataflow stream uses the `NGSILDReceiver` operator in order to receive notifications and filters the input to only respond to motion senseors and then uses the `NGSILDSink` to push processed context back to the Context Broker. You can find the source code of the example in
+The dataflow stream uses the `NGSILDReceiver` operator in order to receive notifications and filters the input to
+only respond to motion sensors and then uses the `NGSILDSink` to push processed context back to the Context Broker.
+You can find the source code of the example in
 [org/fiware/cosmos/tutorial/FeedbackLD.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/FeedbackLD.scala)
 
 ### Feedback Loop - Installing the JAR
@@ -519,7 +528,8 @@ The dataflow stream uses the `NGSILDReceiver` operator in order to receive notif
 
 ### Feedback Loop - Subscribing to context changes
 
-A new subscription needs to be set up to run this example. The subscription is listening to changes of context on the soil humidity sensor.
+A new subscription needs to be set up to run this example. The subscription is listening to changes of context on the
+soil humidity sensor.
 
 #### :three: Request:
 
@@ -560,7 +570,9 @@ curl -X GET \
 
 Go to `http://localhost:3000/device/monitor`
 
-Raise the temperature in Farm001 and wait until the humidity value is below 35, then the water faucet will be automatically turned on to increase the soil humidity. When the humidity rises above 50, the water faucet will be turned off automatically as well.
+Raise the temperature in Farm001 and wait until the humidity value is below 35, then the water faucet will be
+automatically turned on to increase the soil humidity. When the humidity rises above 50, the water faucet will
+be turned off automatically as well.
 
 ### Feedback Loop - Analyzing the Code
 
@@ -624,7 +636,8 @@ object FeedbackLD {
 }
 ```
 
-As you can see, it is similar to the previous example. The main difference is that it writes the processed data back in the Context Broker through the **`OrionSink`**.
+As you can see, it is similar to the previous example. The main difference is that it writes the processed data back
+in the Context Broker through the **`OrionSink`**.
 
 The arguments of the **`OrionSinkObject`** are:
 
