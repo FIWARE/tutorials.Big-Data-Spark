@@ -296,7 +296,7 @@ Maven:
 
 ```console
 cd cosmos-examples
-curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.1/orion.spark.connector-1.2.2.jar
+curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.2/orion.spark.connector-1.2.2.jar
 mvn install:install-file \
   -Dfile=./orion.spark.connector-1.2.2.jar \
   -DgroupId=org.fiware.cosmos \
