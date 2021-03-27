@@ -203,6 +203,68 @@ code into a JAR file.
 We will start up our services using a simple Bash script. Windows users should download [cygwin](http://www.cygwin.com/)
 to provide a command-line functionality similar to a Linux distribution on Windows.
 
+## Java JDK
+
+The current version of the Apache Spark Connector is based on the Apache Spark v2.4.5. Note that, Spark 2.x is
+pre-built with **Scala 2.11**. This version of Scala uses the **Java 8 JDK** or **Java 11 JDK**. Please refer to
+the [Scala JDK compatibility](https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html?_ga=2.173507616.2062103704.1616863323-566380632.1616863323)
+for more details.
+
+You can check the current version of Java installed, just executing:
+
+```bash
+java -version
+```
+
+To install the Java 8 JDK, review [Java SE Development Kit 8 Downloads](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html).
+If you already have installed several versions of Java, you can switch between them, just changing the **`JAVA_HOME`**
+variable to the folder in which you have installed them. You can check the different versions available in your system
+executing this command on MacOS:
+
+```bash
+/usr/libexec/java_home -V
+```
+
+You obtain the following information:
+
+```bash
+Matching Java Virtual Machines (2):
+11.0.1, x86_64: "Java SE 11.0.1" /Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home
+1.8.0_201, x86_64: "Java SE 8" /Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
+```
+
+On most Linux distributions you can use update-alternatives like this:
+
+```bash
+sudo update-alternatives --config java
+```
+
+You will obtain something like:
+
+```bash
+There is only one alternative in link group java (providing /usr/bin/java): /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+Nothing to configure.
+```
+
+To select the version just assign the value of the path to the `**JAVA_HOME**` variable.
+
+```bash
+export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
+```
+
+## Scala
+
+How it was mentioned previously, the current version of the Apache Spark Connector is based on the Apache Spark v2.4.5.
+Note that, Spark 2.x is pre-built with **Scala 2.11**. We recommend the installation of sbt to execute work with scala
+from the CLI. You can take a look to [Installing Scala 2.11.12](https://www.scala-lang.org/download/2.11.12.html) to
+get more details.
+
+You can check the scala version executing the following command:
+
+```bash
+scala --version
+```
+
 # Start Up
 
 Before you start, you should ensure that you have obtained or built the necessary Docker images locally. Please clone
@@ -296,8 +358,9 @@ A new JAR file called `cosmos-examples-1.2.2.jar` will be created within the `co
 
 For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated.
 The dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor`
-and start a **Tractor** moving. This can be done by selecting an appropriate the command from the drop down list and
-pressing the `send` button. The stream of measurements coming from the devices can then be seen on the same page:
+and start a **Tractor** moving. This can be done by selecting an appropriate command (**Start Tractor**) from the
+drop down list and pressing the `send` button. The stream of measurements coming from the devices can then be seen
+on the same page:
 
 ![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif) MISSING
 
@@ -323,7 +386,7 @@ docker exec -it spark-worker-1 bin/bash
 And run the following command to run the generated JAR package in the Spark cluster:
 
 ```console
-/spark/bin/spark-submit \
+bash-5.0# /spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.LoggerLD \
 --master  spark://spark-master:7077 \
 --deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.2.jar \
@@ -386,37 +449,40 @@ curl -X GET \
 
 ```json
 [
-    {
-        "id": "5d76059d14eda92b0686f255",
-        "description": "Notify Spark of all context changes",
-        "status": "active",
-        "subject": {
-            "entities": [
-                {
-                    "idPattern": ".*"
-                }
-            ],
-            "condition": {
-                "attrs": []
-            }
-        },
-        "notification": {
-            "timesSent": 362,
-            "lastNotification": "2019-09-09T09:36:33.00Z",
-            "attrs": [],
-            "attrsFormat": "normalized",
-            "http": {
-                "url": "http://spark-worker-1:9001"
-            },
-            "lastSuccess": "2019-09-09T09:36:33.00Z",
-            "lastSuccessCode": 200
-        }
-    }
+  {
+    "id": "urn:ngsi-ld:Subscription:605f91e42bccb32d0b6b44ed",
+    "type": "Subscription",
+    "description": "Notify Spark of all animal and farm vehicle movements",
+    "entities": [
+      {
+        "type": "Tractor"
+      },
+      {
+        "type": "Device"
+      }
+    ],
+    "watchedAttributes": [
+      "location"
+    ],
+    "notification": {
+      "attributes": [
+        "location"
+      ],
+      "format": "normalized",
+      "endpoint": {
+        "uri": "http://spark-worker-1:9001",
+        "accept": "application/json"
+      },
+      "timesSent": 47,
+      "lastNotification": "2021-03-27T20:13:52.668Z"
+    },
+    "@context": "http://context-provider:3000/data-models/ngsi-context.jsonld"
+  }
 ]
 ```
 
-Within the `notification` section of the response, you can see several additional `attributes` which describe the health
-of the subscription.
+Within the `notification` section of the response, you can see several additional `attributes` which describe the
+health of the subscription.
 
 If the criteria of the subscription have been met, `timesSent` should be greater than `0`. A zero value would indicate
 that the `subject` of the subscription is incorrect, or the subscription has created with the wrong `NGSILD-Tenant`
@@ -497,7 +563,7 @@ can define a case class as shown:
 case class Sensor(device: String)
 ```
 
-Thereafter can count the created objects by the type of device (`countByValue()`) and perform operations such as
+Thereafter, can count the created objects by the type of device (`countByValue()`) and perform operations such as
 `window()` on them.
 
 After the processing, the results are output to the console:
@@ -651,12 +717,12 @@ The arguments of the **`OrionSinkObject`** are:
 
 # Next Steps
 
-If you would rather use Flink as your data processing engine, we have
-[this tutorial available for Flink](https://github.com/ging/tutorials.Big-Data-Analysis) as well
+If you would rather use Spark as your data processing engine, we have
+[this tutorial available for Spark](https://github.com/ging/tutorials.Big-Data-Analysis) as well
 
 The operations performed on data in this tutorial were very simple. If you would like to know how to set up a scenario
 for performing real-time predictions using Machine Learning check out the
-[demo](https://github.com/ging/fiware-global-summit-berlin-2019-ml/) presented at the FIWARE Global Summit in Berlin
+[demo](https://github.com/ging/fiware-global-summit-berlin-2019-ml) presented at the FIWARE Global Summit in Berlin
 (2019).
 
 If you want to learn how to add more complexity to your application by adding advanced features, you can find out by
