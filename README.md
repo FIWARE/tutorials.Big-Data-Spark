@@ -362,7 +362,7 @@ and start a **Tractor** moving. This can be done by selecting an appropriate com
 drop down list and pressing the `send` button. The stream of measurements coming from the devices can then be seen
 on the same page:
 
-![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif) MISSING
+![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif)
 
 > :information_source: **Note:** By default, we are using the port 3000 to access the dummy IoT Sensor, this
 > information is detailed in the `.env` configuration file. You can change this port if you already have a service
