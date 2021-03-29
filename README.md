@@ -11,7 +11,8 @@ enables easier Big Data analysis over context, integrated with one of the most p
 computations over unbounded and bounded data streams. Spark has been designed to run in all common cluster environments,
 perform computations at in-memory speed and at any scale.
 
-The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as [Postman documentation](https://fiware.github.io/tutorials.Big-Data-Spark/ngsi-ld.html)
+The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as
+[Postman documentation](https://fiware.github.io/tutorials.Big-Data-Spark/ngsi-ld.html)
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/e7c16fce79fa081ba529)
 
@@ -168,9 +169,9 @@ The `spark-worker-1` container is listening on one port:
 
 ## Java JDK
 
-The current version of the Apache Spark Connector is based on the Apache Spark v2.4.5. Note that, Spark 2.x is
-pre-built with **Scala 2.11**. This version of Scala uses the **Java 8 JDK** or **Java 11 JDK**. Please refer to
-the [Scala JDK compatibility](https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html?_ga=2.173507616.2062103704.1616863323-566380632.1616863323)
+The current version of the Apache Spark Connector is based on the Apache Spark v2.4.5. Note that, Spark 2.x is pre-built
+with **Scala 2.11**. This version of Scala uses the **Java 8 JDK** or **Java 11 JDK**. Please refer to the
+[Scala JDK compatibility](https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html?_ga=2.173507616.2062103704.1616863323-566380632.1616863323)
 for more details.
 
 You can check the current version of Java installed, just executing:
@@ -179,8 +180,9 @@ You can check the current version of Java installed, just executing:
 java -version
 ```
 
-To install the Java 8 JDK, review [Java SE Development Kit 8 Downloads](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html).
-If you already have installed several versions of Java, you can switch between them, just changing the **`JAVA_HOME`**
+To install the Java 8 JDK, review
+[Java SE Development Kit 8 Downloads](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html). If
+you already have installed several versions of Java, you can switch between them, just changing the **`JAVA_HOME`**
 variable to the folder in which you have installed them. You can check the different versions available in your system
 executing this command on MacOS:
 
@@ -219,8 +221,8 @@ export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
 
 How it was mentioned previously, the current version of the Apache Spark Connector is based on the Apache Spark v2.4.5.
 Note that, Spark 2.x is pre-built with **Scala 2.11**. We recommend the installation of sbt to execute work with scala
-from the CLI. You can take a look to [Installing Scala 2.11.12](https://www.scala-lang.org/download/2.11.12.html) to
-get more details.
+from the CLI. You can take a look to [Installing Scala 2.11.12](https://www.scala-lang.org/download/2.11.12.html) to get
+more details.
 
 You can check the scala version executing the following command:
 
@@ -319,17 +321,17 @@ A new JAR file called `cosmos-examples-1.2.2.jar` will be created within the `co
 
 ### Generating a stream of Context Data
 
-For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated.
-The dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor`
-and start a **Tractor** moving. This can be done by selecting an appropriate command (**Start Tractor**) from the
-drop down list and pressing the `send` button. The stream of measurements coming from the devices can then be seen
-on the same page:
+For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated. The
+dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor` and
+start a **Tractor** moving. This can be done by selecting an appropriate command (**Start Tractor**) from the drop down
+list and pressing the `send` button. The stream of measurements coming from the devices can then be seen on the same
+page:
 
 ![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif)
 
-> :information_source: **Note:** By default, we are using the port 3000 to access the dummy IoT Sensor, this
-> information is detailed in the `.env` configuration file. You can change this port if you already have a service
-> running on that port.
+> :information_source: **Note:** By default, we are using the port 3000 to access the dummy IoT Sensor, this information
+> is detailed in the `.env` configuration file. You can change this port if you already have a service running on that
+> port.
 
 ## Logger - Reading Context Data Streams
 
@@ -363,8 +365,8 @@ inform **Spark** of changes in context.
 
 This is done by making a POST request to the `/ngsi-ld/v1/subscriptions` endpoint of the Orion Context Broker.
 
--   The `NGSILD-Tenant` header is used to filter the subscription to only listen to
-    measurements from the attached IoT Sensors, since they had been provisioned using these settings
+-   The `NGSILD-Tenant` header is used to filter the subscription to only listen to measurements from the attached IoT
+    Sensors, since they had been provisioned using these settings
 
 -   The notification `uri` must match the one our Spark program is listening to.
 
@@ -412,40 +414,36 @@ curl -X GET \
 
 ```json
 [
-  {
-    "id": "urn:ngsi-ld:Subscription:605f91e42bccb32d0b6b44ed",
-    "type": "Subscription",
-    "description": "Notify Spark of all animal and farm vehicle movements",
-    "entities": [
-      {
-        "type": "Tractor"
-      },
-      {
-        "type": "Device"
-      }
-    ],
-    "watchedAttributes": [
-      "location"
-    ],
-    "notification": {
-      "attributes": [
-        "location"
-      ],
-      "format": "normalized",
-      "endpoint": {
-        "uri": "http://spark-worker-1:9001",
-        "accept": "application/json"
-      },
-      "timesSent": 47,
-      "lastNotification": "2021-03-27T20:13:52.668Z"
-    },
-    "@context": "http://context-provider:3000/data-models/ngsi-context.jsonld"
-  }
+    {
+        "id": "urn:ngsi-ld:Subscription:605f91e42bccb32d0b6b44ed",
+        "type": "Subscription",
+        "description": "Notify Spark of all animal and farm vehicle movements",
+        "entities": [
+            {
+                "type": "Tractor"
+            },
+            {
+                "type": "Device"
+            }
+        ],
+        "watchedAttributes": ["location"],
+        "notification": {
+            "attributes": ["location"],
+            "format": "normalized",
+            "endpoint": {
+                "uri": "http://spark-worker-1:9001",
+                "accept": "application/json"
+            },
+            "timesSent": 47,
+            "lastNotification": "2021-03-27T20:13:52.668Z"
+        },
+        "@context": "http://context-provider:3000/data-models/ngsi-context.jsonld"
+    }
 ]
 ```
 
-Within the `notification` section of the response, you can see several additional `attributes` which describe the
-health of the subscription.
+Within the `notification` section of the response, you can see several additional `attributes` which describe the health
+of the subscription.
 
 If the criteria of the subscription have been met, `timesSent` should be greater than `0`. A zero value would indicate
 that the `subject` of the subscription is incorrect, or the subscription has created with the wrong `NGSILD-Tenant`
@@ -505,8 +503,8 @@ object LoggerLD{
 }
 ```
 
-The first lines of the program are aimed at importing the necessary dependencies, including the connector. The next
-step is to create an instance of the `NGSILDReceiver` using the class provided by the connector and to add it to the
+The first lines of the program are aimed at importing the necessary dependencies, including the connector. The next step
+is to create an instance of the `NGSILDReceiver` using the class provided by the connector and to add it to the
 environment provided by Spark.
 
 The `NGSILDReceiver` constructor accepts a port number (`9001`) as a parameter. This port is used to listen to the
@@ -515,12 +513,12 @@ these objects can be found within the
 [Orion-Spark Connector documentation](https://github.com/ging/fiware-cosmos-orion-spark-connector/blob/master/README.md#orionreceiver).
 
 The stream processing consists of five separate steps. The first step (`flatMap()`) is performed in order to put
-together the entity objects of all the NGSI Events received in a period of time. Thereafter, the code iterates over
-them (with the `map()` operation) and extracts the desired attributes. In this case, we are interested in the sensor
-`type` (`Device` or `Tractor`).
+together the entity objects of all the NGSI Events received in a period of time. Thereafter, the code iterates over them
+(with the `map()` operation) and extracts the desired attributes. In this case, we are interested in the sensor `type`
+(`Device` or `Tractor`).
 
-Within each iteration, we create a custom object with the property we need: the sensor `type`. For this purpose, we
-can define a case class as shown:
+Within each iteration, we create a custom object with the property we need: the sensor `type`. For this purpose, we can
+define a case class as shown:
 
 ```scala
 case class Sensor(device: String)
@@ -540,9 +538,9 @@ processedDataStream.print()
 The second example turns on a water faucet when the soil humidity is too low and turns it back off it when the soil
 humidity it is back to normal levels. This way, the soil humidity is always kept at an adequate level.
 
-The dataflow stream uses the `NGSILDReceiver` operator in order to receive notifications and filters the input to
-only respond to motion sensors and then uses the `NGSILDSink` to push processed context back to the Context Broker.
-You can find the source code of the example in
+The dataflow stream uses the `NGSILDReceiver` operator in order to receive notifications and filters the input to only
+respond to motion sensors and then uses the `NGSILDSink` to push processed context back to the Context Broker. You can
+find the source code of the example in
 [org/fiware/cosmos/tutorial/FeedbackLD.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/FeedbackLD.scala)
 
 ### Feedback Loop - Installing the JAR
@@ -594,14 +592,13 @@ curl -X GET \
 -H 'NGSILD-Tenant: openiot'
 ```
 
-
 ### Feedback Loop - Checking the Output
 
 Go to `http://localhost:3000/device/monitor`
 
 Raise the temperature in Farm001 and wait until the humidity value is below 35, then the water faucet will be
-automatically turned on to increase the soil humidity. When the humidity rises above 50, the water faucet will
-be turned off automatically as well.
+automatically turned on to increase the soil humidity. When the humidity rises above 50, the water faucet will be turned
+off automatically as well.
 
 ### Feedback Loop - Analyzing the Code
 
@@ -665,17 +662,19 @@ object FeedbackLD {
 }
 ```
 
-As you can see, it is similar to the previous example. The main difference is that it writes the processed data back
-in the Context Broker through the **`OrionSink`**.
+As you can see, it is similar to the previous example. The main difference is that it writes the processed data back in
+the Context Broker through the **`OrionSink`**.
 
 The arguments of the **`OrionSinkObject`** are:
 
--   **Message**: `"{\n  \"type\" : \"Property\",\n  \"value\" : \" \" \n}"`.
--   **URL**: `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/on"` or `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/off"`, depending on whether we are turning on or off the water faucet. TakeRight(3) gets the number of
-    the sensor, for example '001'.
+-   **Message**: `"{\n \"type\" : \"Property\",\n \"value\" : \" \" \n}"`.
+-   **URL**: `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/on"` or
+    `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/off"`, depending on
+    whether we are turning on or off the water faucet. TakeRight(3) gets the number of the sensor, for example '001'.
 -   **Content Type**: `ContentType.JSON`.
 -   **HTTP Method**: `HTTPMethod.PATCH`.
--   **Headers**: `Map("NGSILD-Tenant" -> "openiot", "Link" -> "<http://context-provider:3000/data-models/ngsi-context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\"" )`.
+-   **Headers**:
+    `Map("NGSILD-Tenant" -> "openiot", "Link" -> "<http://context-provider:3000/data-models/ngsi-context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\"" )`.
     We add the headers we need in the HTTP Request.
 
 # Next Steps
