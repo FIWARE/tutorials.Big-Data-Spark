@@ -11,7 +11,8 @@ enables easier Big Data analysis over context, integrated with one of the most p
 computations over unbounded and bounded data streams. Spark has been designed to run in all common cluster environments,
 perform computations at in-memory speed and at any scale.
 
-The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as [Postman documentation](https://fiware.github.io/tutorials.Big-Data-Spark/ngsi-ld.html)
+The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also available as
+[Postman documentation](https://fiware.github.io/tutorials.Big-Data-Spark/ngsi-ld.html)
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/e7c16fce79fa081ba529)
 
@@ -176,10 +177,10 @@ technology which allows to different components isolated into their respective e
 -   To install Docker on Linux follow the instructions [here](https://docs.docker.com/install/)
 
 **Docker Compose** is a tool for defining and running multi-container Docker applications. A series of
-[YAML files](https://github.com/FIWARE/tutorials.Big-Data-Spark/blob/NGSI-LD/docker-compose.yml) are used to configure the
-required services for the application. This means all container services can be brought up in a single command. Docker
-Compose is installed by default as part of Docker for Windows and Docker for Mac, however Linux users will need to
-follow the instructions found [here](https://docs.docker.com/compose/install/)
+[YAML files](https://github.com/FIWARE/tutorials.Big-Data-Spark/blob/NGSI-LD/docker-compose.yml) are used to configure
+the required services for the application. This means all container services can be brought up in a single command.
+Docker Compose is installed by default as part of Docker for Windows and Docker for Mac, however Linux users will need
+to follow the instructions found [here](https://docs.docker.com/compose/install/)
 
 You can check your current **Docker** and **Docker Compose** versions using the following commands:
 
@@ -293,9 +294,8 @@ A new JAR file called `cosmos-examples-1.2.2.jar` will be created within the `co
 
 For the purpose of this tutorial, we must be monitoring a system in which the context is periodically being updated. The
 dummy IoT Sensors can be used to do this. Open the device monitor page at `http://localhost:3000/device/monitor` and
-start a **Tractor** moving. This can be done by selecting an appropriate the command from
-the drop down list and pressing the `send` button. The stream of measurements coming from the devices can then be seen
-on the same page:
+start a **Tractor** moving. This can be done by selecting an appropriate the command from the drop down list and
+pressing the `send` button. The stream of measurements coming from the devices can then be seen on the same page:
 
 ![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif)
 
@@ -331,8 +331,8 @@ inform **Spark** of changes in context.
 
 This is done by making a POST request to the `/ngsi-ld/v1/subscriptions` endpoint of the Orion Context Broker.
 
--   The `NGSILD-Tenant` header is used to filter the subscription to only listen to
-    measurements from the attached IoT Sensors, since they had been provisioned using these settings
+-   The `NGSILD-Tenant` header is used to filter the subscription to only listen to measurements from the attached IoT
+    Sensors, since they had been provisioned using these settings
 
 -   The notification `uri` must match the one our Spark program is listening to.
 
@@ -502,9 +502,12 @@ processedDataStream.print()
 
 ## Feedback Loop - Persisting Context Data
 
-The second example turns on a water faucet when the soil humidity is too low and turns it back off it when the soil humidity it is back to normal levels. This way, the soil humidity is always kept at an adequate level.
+The second example turns on a water faucet when the soil humidity is too low and turns it back off it when the soil
+humidity it is back to normal levels. This way, the soil humidity is always kept at an adequate level.
 
-The dataflow stream uses the `NGSILDReceiver` operator in order to receive notifications and filters the input to only respond to motion senseors and then uses the `NGSILDSink` to push processed context back to the Context Broker. You can find the source code of the example in
+The dataflow stream uses the `NGSILDReceiver` operator in order to receive notifications and filters the input to only
+respond to motion senseors and then uses the `NGSILDSink` to push processed context back to the Context Broker. You can
+find the source code of the example in
 [org/fiware/cosmos/tutorial/FeedbackLD.scala](https://github.com/ging/fiware-cosmos-orion-spark-connector-tutorial/blob/master/cosmos-examples/src/main/scala/org/fiware/cosmos/tutorial/FeedbackLD.scala)
 
 ### Feedback Loop - Installing the JAR
@@ -519,7 +522,8 @@ The dataflow stream uses the `NGSILDReceiver` operator in order to receive notif
 
 ### Feedback Loop - Subscribing to context changes
 
-A new subscription needs to be set up to run this example. The subscription is listening to changes of context on the soil humidity sensor.
+A new subscription needs to be set up to run this example. The subscription is listening to changes of context on the
+soil humidity sensor.
 
 #### :three: Request:
 
@@ -555,12 +559,13 @@ curl -X GET \
 -H 'NGSILD-Tenant: openiot'
 ```
 
-
 ### Feedback Loop - Checking the Output
 
 Go to `http://localhost:3000/device/monitor`
 
-Raise the temperature in Farm001 and wait until the humidity value is below 35, then the water faucet will be automatically turned on to increase the soil humidity. When the humidity rises above 50, the water faucet will be turned off automatically as well.
+Raise the temperature in Farm001 and wait until the humidity value is below 35, then the water faucet will be
+automatically turned on to increase the soil humidity. When the humidity rises above 50, the water faucet will be turned
+off automatically as well.
 
 ### Feedback Loop - Analyzing the Code
 
@@ -624,16 +629,19 @@ object FeedbackLD {
 }
 ```
 
-As you can see, it is similar to the previous example. The main difference is that it writes the processed data back in the Context Broker through the **`OrionSink`**.
+As you can see, it is similar to the previous example. The main difference is that it writes the processed data back in
+the Context Broker through the **`OrionSink`**.
 
 The arguments of the **`OrionSinkObject`** are:
 
--   **Message**: `"{\n  \"type\" : \"Property\",\n  \"value\" : \" \" \n}"`.
--   **URL**: `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/on"` or `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/off"`, depending on whether we are turning on or off the water faucet. TakeRight(3) gets the number of
-    the sensor, for example '001'.
+-   **Message**: `"{\n \"type\" : \"Property\",\n \"value\" : \" \" \n}"`.
+-   **URL**: `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/on"` or
+    `"http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water"+sensor._1.takeRight(3)+"/attrs/off"`, depending on
+    whether we are turning on or off the water faucet. TakeRight(3) gets the number of the sensor, for example '001'.
 -   **Content Type**: `ContentType.JSON`.
 -   **HTTP Method**: `HTTPMethod.PATCH`.
--   **Headers**: `Map("NGSILD-Tenant" -> "openiot", "Link" -> "<http://context-provider:3000/data-models/ngsi-context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\"" )`.
+-   **Headers**:
+    `Map("NGSILD-Tenant" -> "openiot", "Link" -> "<http://context-provider:3000/data-models/ngsi-context.jsonld>; rel=\"http://www.w3.org/ns/json-ld#context\"; type=\"application/ld+json\"" )`.
     We add the headers we need in the HTTP Request.
 
 # Next Steps
