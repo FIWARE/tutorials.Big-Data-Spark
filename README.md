@@ -297,7 +297,7 @@ dummy IoT Sensors can be used to do this. Open the device monitor page at `http:
 start a **Tractor** moving. This can be done by selecting an appropriate the command from the drop down list and
 pressing the `send` button. The stream of measurements coming from the devices can then be seen on the same page:
 
-![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif)
+![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.png)
 
 ## Logger - Reading Context Data Streams
 
