@@ -167,6 +167,43 @@ The `spark-worker-1` container is listening on one port:
 
 # Prerequisites
 
+## Docker and Docker Compose
+
+To keep things simple, all components will be run using [Docker](https://www.docker.com). **Docker** is a container
+technology which allows to different components isolated into their respective environments.
+
+-   To install Docker on Windows follow the instructions [here](https://docs.docker.com/docker-for-windows/)
+-   To install Docker on Mac follow the instructions [here](https://docs.docker.com/docker-for-mac/)
+-   To install Docker on Linux follow the instructions [here](https://docs.docker.com/install/)
+
+**Docker Compose** is a tool for defining and running multi-container Docker applications. A series of
+[YAML files](https://github.com/FIWARE/tutorials.Big-Data-Spark/blob/NGSI-LD/docker-compose.yml) are used to configure
+the required services for the application. This means all container services can be brought up in a single command.
+Docker Compose is installed by default as part of Docker for Windows and Docker for Mac, however Linux users will need
+to follow the instructions found [here](https://docs.docker.com/compose/install/)
+
+You can check your current **Docker** and **Docker Compose** versions using the following commands:
+
+```console
+docker-compose -v
+docker version
+```
+
+Please ensure that you are using Docker version 18.03 or higher and Docker Compose 1.21 or higher and upgrade if
+necessary.
+
+## Maven
+
+[Apache Maven](https://maven.apache.org/download.cgi) is a software project management and comprehension tool. Based on
+the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a
+central piece of information. We will use Maven to define and download our dependencies and to build and package our
+code into a JAR file.
+
+## Cygwin for Windows
+
+We will start up our services using a simple Bash script. Windows users should download [cygwin](http://www.cygwin.com/)
+to provide a command-line functionality similar to a Linux distribution on Windows.
+
 ## Java JDK
 
 The current version of the Apache Spark Connector is based on the Apache Spark v2.4.5. Note that, Spark 2.x is pre-built
@@ -176,7 +213,7 @@ for more details.
 
 You can check the current version of Java installed, just executing:
 
-```bash
+```console
 java -version
 ```
 
@@ -186,13 +223,13 @@ you already have installed several versions of Java, you can switch between them
 variable to the folder in which you have installed them. You can check the different versions available in your system
 executing this command on MacOS:
 
-```bash
+```console
 /usr/libexec/java_home -V
 ```
 
 You obtain the following information:
 
-```bash
+```console
 Matching Java Virtual Machines (2):
 11.0.1, x86_64: "Java SE 11.0.1" /Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home
 1.8.0_201, x86_64: "Java SE 8" /Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
@@ -200,20 +237,20 @@ Matching Java Virtual Machines (2):
 
 On most Linux distributions you can use update-alternatives like this:
 
-```bash
+```console
 sudo update-alternatives --config java
 ```
 
 You will obtain something like:
 
-```bash
+```console
 There is only one alternative in link group java (providing /usr/bin/java): /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 Nothing to configure.
 ```
 
 To select the version just assign the value of the path to the `**JAVA_HOME**` variable.
 
-```bash
+```console
 export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
 ```
 
@@ -226,7 +263,7 @@ more details.
 
 You can check the scala version executing the following command:
 
-```bash
+```console
 scala --version
 ```
 
@@ -351,7 +388,7 @@ docker exec -it spark-worker-1 bin/bash
 And run the following command to run the generated JAR package in the Spark cluster:
 
 ```console
-bash-5.0# /spark/bin/spark-submit \
+/spark/bin/spark-submit \
 --class  org.fiware.cosmos.tutorial.LoggerLD \
 --master  spark://spark-master:7077 \
 --deploy-mode client /home/cosmos-examples/target/cosmos-examples-1.2.2.jar \
@@ -679,8 +716,8 @@ The arguments of the **`OrionSinkObject`** are:
 
 # Next Steps
 
-If you would rather use Spark as your data processing engine, we have
-[this tutorial available for Spark](https://github.com/ging/tutorials.Big-Data-Analysis) as well
+If you would rather use Flink as your data processing engine, we have
+[this tutorial available for Flink](https://github.com/FIWARE/tutorials.Big-Data-Flink) as well
 
 The operations performed on data in this tutorial were very simple. If you would like to know how to set up a scenario
 for performing real-time predictions using Machine Learning check out the
