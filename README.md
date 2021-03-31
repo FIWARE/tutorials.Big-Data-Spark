@@ -30,6 +30,8 @@ The tutorial uses [cUrl](https://ec.haxx.se/) commands throughout, but is also a
     -   [Docker and Docker Compose](#docker-and-docker-compose)
     -   [Maven](#maven)
     -   [Cygwin for Windows](#cygwin-for-windows)
+    -   [Java JDK](#java-jdk)
+    -   [Scala](#scala)
 -   [Start Up](#start-up)
 -   [Real-time Processing Operations](#real-time-processing-operations)
     -   [Compiling a JAR file for Spark](#compiling-a-jar-file-for-spark)
