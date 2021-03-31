@@ -27,6 +27,8 @@
     -   [Docker および Docker Compose](#docker-and-docker-compose)
     -   [Maven](#maven)
     -   [Cygwin for Windows](#cygwin-for-windows)
+    -   [Java JDK](#java-jdk)
+    -   [Scala](#scala)
 -   [起動](#start-up)
 -   [リアルタイム処理操作](#real-time-processing-operations)
     -   [Spark 用の JAR ファイルのコンパイル](#compiling-a-jar-file-for-spark)
@@ -218,6 +220,75 @@ Docker バージョン18.03 以降および Docker Compose 1.21 以降を使用�
 簡単な Bash スクリプトを使用してサービスを開始します。Windows ユーザは、[cygwin](http://www.cygwin.com/) を
 ダウンロードして、Windows 上の Linux ディストリビューションに類似したコマンドライン機能を提供する必要があります。
 
+<a name="java-jdk"/>
+
+## Java JDK
+
+Apache Spark コネクタの現在のバージョンは、Apache Spark v2.4.5 に基づいています。Spark2.x は **Scala 2.11** で
+事前に構築されていることに注意してください。このバージョンの Scala は、**Java 8 JDK** または **Java 11 JDK**を
+使用します。詳細については、
+[Scala JDKの互換性](https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html?_ga=2.173507616.2062103704.1616863323-566380632.1616863323)
+を参照してください
+
+次のコマンドを実行するだけで、インストールされている Java の現在のバージョンを確認できます:
+
+```console
+java -version
+```
+
+Java 8 JDK をインストールするには、
+[Java SE Development Kit 8 Downloads](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html)
+を確認してください。Java の複数のバージョンをすでにインストールしている場合は、**`JAVA_HOME`** 変数をインストールした
+フォルダに変更するだけで、それらを切り替えることができます。MacOS で次のコマンドを実行すると、システムで使用可能な
+さまざまなバージョンを確認できます:
+
+```console
+/usr/libexec/java_home -V
+```
+
+次の情報を取得できます:
+
+```console
+Matching Java Virtual Machines (2):
+11.0.1, x86_64: "Java SE 11.0.1" /Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home
+1.8.0_201, x86_64: "Java SE 8" /Library/Java/JavaVirtualMachines/jdk1.8.0_201.jdk/Contents/Home
+```
+
+ほとんどの Linux ディストリビューションでは、次のような update-alternatives を使用できます:
+
+```console
+sudo update-alternatives --config java
+```
+
+次のような情報を取得できます:
+
+```console
+There is only one alternative in link group java (providing /usr/bin/java): /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+Nothing to configure.
+```
+
+バージョンを選択するには、パスの値を `**JAVA_HOME**` 変数に割り当てるだけです。
+
+```console
+export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
+```
+
+<a name="scala"/>
+
+## Scala
+
+前述のとおり、Apache Spark コネクタの現在のバージョンは Apache Spark v2.4.5 に基づいています。 Spark2.x は
+**Scala 2.11** で事前に構築されていることに注意してください。CLI から scala で作業を実行するには、sbt を
+インストールすることをお勧めします。詳細は、
+[Installing Scala 2.11.12](https://www.scala-lang.org/download/2.11.12.html)
+を参照ください。
+
+次のコマンドを実行して、scala のバージョンを確認できます:
+
+```console
+scala --version
+```
+
 <a name="start-up"/>
 
 # 起動
@@ -280,7 +351,7 @@ window などの高レベル関数で表現された複雑なアルゴリズム�
 ディレクトリにあります。
 
 その他の Spark 処理の例は、
-[Spark Connector の例](https://fiware-cosmos-spark-examples.readthedocs.io/) にあります。
+[Spark Connector の例](https://fiware-cosmos-spark-examples.readthedocs.io) にあります。
 
 <a name="compiling-a-jar-file-for-spark"/>
 
@@ -293,7 +364,7 @@ Orion Spark Connector を使用するには、最初に Maven を使用してア
 
 ```console
 cd cosmos-examples
-curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.1/orion.spark.connector-1.2.2.jar
+curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.2/orion.spark.connector-1.2.2.jar
 mvn install:install-file \
   -Dfile=./orion.spark.connector-1.2.2.jar \
   -DgroupId=org.fiware.cosmos \
@@ -301,6 +372,9 @@ mvn install:install-file \
   -Dversion=1.2.2 \
   -Dpackaging=jar
 ```
+
+> :information_source: **注:** コマンド `./services create` を実行すると、スクリプトは対応する
+> `orion.spark.connector-1.2.2.jar` ファイルを `cosmos-example` フォルダに自動的にダウンロードします。
 
 その後、同じディレクトリ (`cosmos-examples`) 内で `mvn package` コマンドを実行することにより、
 ソースコードをコンパイルできます:
@@ -317,10 +391,14 @@ mvn package
 
 このチュートリアルでは、コンテキストが定期的に更新されているシステムを監視する必要があります。 ダミー IoT センサを
 使用してこれを行うことができます。`http://localhost:3000/device/monitor` でデバイス・モニタ・ページを開き、
-**Tractor** の移動を開始します。これは、ドロップ・ダウン・リストから適切なコマンドを選択して `send` ボタンを押すことで
-実行できます。デバイスからの測定値の流れは、同じページに表示されます:
+**Tractor** の移動を開始します。これは、ドロップ・ダウン・リストから適切なコマンド (**Start Tractor**) を選択し、
+`send` ボタンを押すことで実行できます。デバイスからの測定値の流れは、同じページで見ることができます:
 
-![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.gif)
+![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.png)
+
+> :information_source: **注:** デフォルトでは、ポート 3000 を使用してダミー IoT センサにアクセスしています。
+> この情報は、`.env` 構成ファイルで詳しく説明されています。このポートですでにサービスを実行している場合は、
+> このポートを変更できます。
 
 <a name="logger---reading-context-data-streams"/>
 
@@ -411,30 +489,29 @@ curl -X GET \
 ```json
 [
     {
-        "id": "5d76059d14eda92b0686f255",
-        "description": "Notify Spark of all context changes",
-        "status": "active",
-        "subject": {
-            "entities": [
-                {
-                    "idPattern": ".*"
-                }
-            ],
-            "condition": {
-                "attrs": []
-            }
-        },
-        "notification": {
-            "timesSent": 362,
-            "lastNotification": "2019-09-09T09:36:33.00Z",
-            "attrs": [],
-            "attrsFormat": "normalized",
-            "http": {
-                "url": "http://spark-worker-1:9001"
+        "id": "urn:ngsi-ld:Subscription:605f91e42bccb32d0b6b44ed",
+        "type": "Subscription",
+        "description": "Notify Spark of all animal and farm vehicle movements",
+        "entities": [
+            {
+                "type": "Tractor"
             },
-            "lastSuccess": "2019-09-09T09:36:33.00Z",
-            "lastSuccessCode": 200
-        }
+            {
+                "type": "Device"
+            }
+        ],
+        "watchedAttributes": ["location"],
+        "notification": {
+            "attributes": ["location"],
+            "format": "normalized",
+            "endpoint": {
+                "uri": "http://spark-worker-1:9001",
+                "accept": "application/json"
+            },
+            "timesSent": 47,
+            "lastNotification": "2021-03-27T20:13:52.668Z"
+        },
+        "@context": "http://context-provider:3000/data-models/ngsi-context.jsonld"
     }
 ]
 ```
@@ -689,11 +766,11 @@ object FeedbackLD {
 # 次のステップ
 
 データ処理エンジンとして Flink を使用したい場合は、
-[この Flink 用チュートリアル](https://github.com/ging/tutorials.Big-Data-Analysis) も利用できます。
+[この Flink 用チュートリアル](https://github.com/FIWARE/tutorials.Big-Data-Flink) も利用できます。
 
 このチュートリアルでデータに対して実行される操作は非常に単純でした。機械学習を使用してリアルタイム予測を実行する
 シナリオを設定する方法を知りたい場合は、ベルリンで開催された FIWARE Global Summit (2019) で発表された
-[デモ](https://github.com/ging/fiware-global-summit-berlin-2019-ml/) をご覧ください。
+[デモ](https://github.com/ging/fiware-global-summit-berlin-2019-ml) をご覧ください。
 
 高度な機能を追加することで、アプリケーションに複雑さを加える方法を知りたいですか？ このシリーズの
 [他のチュートリアル](https://www.letsfiware.jp/ngsi-ld-tutorials)を読むことで見つけることができます
