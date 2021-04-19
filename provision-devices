@@ -14,7 +14,7 @@ printf "⏳ Provisioning IoT devices "
 #
 
 curl -s -o /dev/null -X POST \
-  'http://iot-agent:4041/iot/services' \
+  "http://iot-agent:$IOTA_NORTH_PORT/iot/services" \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -22,7 +22,7 @@ curl -s -o /dev/null -X POST \
  "services": [
    {
      "apikey":      "4jggokgpepnvsb2uv4s40d59ov",
-     "cbroker":     "http://orion:1026",
+     "cbroker":     "'"http://orion:$ORION_PORT"'",
      "entity_type": "Thing",
      "resource":    "/iot/d"
    }
@@ -36,7 +36,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://iot-agent:4041/iot/devices' \
+  "http://iot-agent:$IOTA_NORTH_PORT/iot/devices" \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -61,14 +61,14 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Bell",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/bell001",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/bell001"'",
+       "commands": [ 
         {
           "name": "ring",
           "type": "command"
         }
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:001"}
       ]
     },
@@ -78,8 +78,8 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Door",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/door001",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/door001"'",
+       "commands": [ 
         {"name": "unlock","type": "command"},
         {"name": "open","type": "command"},
         {"name": "close","type": "command"},
@@ -88,7 +88,7 @@ curl -s -o /dev/null -X POST \
        "attributes": [
         {"object_id": "s", "name": "state", "type":"Text"}
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:001"}
        ]
     }, 
@@ -98,8 +98,8 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Lamp",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/lamp001",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/lamp001"'",
+       "commands": [ 
         {"name": "on","type": "command"},
         {"name": "off","type": "command"}
        ],
@@ -107,7 +107,7 @@ curl -s -o /dev/null -X POST \
        	{"object_id": "s", "name": "state", "type":"Text"},
         {"object_id": "l", "name": "luminosity", "type":"Integer"}
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:001"}
     	]
     }
@@ -124,7 +124,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -139,7 +139,7 @@ curl -s -o /dev/null -X POST \
     "attrs": ["ring"]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -150,7 +150,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -165,7 +165,7 @@ curl -s -o /dev/null -X POST \
     "attrs": [ "lock", "unlock", "open", "close"]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -176,7 +176,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -191,7 +191,7 @@ curl -s -o /dev/null -X POST \
     "attrs": [ "on", "off" ]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -205,7 +205,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://iot-agent:4041/iot/devices' \
+  "http://iot-agent:$IOTA_NORTH_PORT/iot/devices" \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -230,14 +230,14 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Bell",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/bell002",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/bell002"'",
+       "commands": [ 
         {
           "name": "ring",
           "type": "command"
         }
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:002"}
       ]
     },
@@ -247,8 +247,8 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Door",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/door002",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/door002"'",
+       "commands": [ 
         {"name": "unlock","type": "command"},
         {"name": "open","type": "command"},
         {"name": "close","type": "command"},
@@ -257,7 +257,7 @@ curl -s -o /dev/null -X POST \
        "attributes": [
         {"object_id": "s", "name": "state", "type":"Text"}
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:002"}
        ]
     },
@@ -267,8 +267,8 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Lamp",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/lamp002",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/lamp002"'",
+       "commands": [ 
         {"name": "on","type": "command"},
         {"name": "off","type": "command"}
        ],
@@ -276,7 +276,7 @@ curl -s -o /dev/null -X POST \
        	{"object_id": "s", "name": "state", "type":"Text"},
         {"object_id": "l", "name": "luminosity", "type":"Integer"}
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:002"}
     	]
     }
@@ -293,7 +293,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -308,7 +308,7 @@ curl -s -o /dev/null -X POST \
     "attrs": ["ring"]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -319,7 +319,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -334,7 +334,7 @@ curl -s -o /dev/null -X POST \
     "attrs": [ "lock", "unlock", "open", "close"]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -345,7 +345,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -360,7 +360,7 @@ curl -s -o /dev/null -X POST \
     "attrs": [ "on", "off" ]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -374,7 +374,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://iot-agent:4041/iot/devices' \
+  "http://iot-agent:$IOTA_NORTH_PORT/iot/devices" \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -399,14 +399,14 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Bell",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/bell003",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/bell003"'",
+       "commands": [ 
         {
           "name": "ring",
           "type": "command"
         }
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:003"}
       ]
     },
@@ -416,8 +416,8 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Door",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/door003",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/door003"'",
+       "commands": [ 
         {"name": "unlock","type": "command"},
         {"name": "open","type": "command"},
         {"name": "close","type": "command"},
@@ -426,7 +426,7 @@ curl -s -o /dev/null -X POST \
        "attributes": [
         {"object_id": "s", "name": "state", "type":"Text"}
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:003"}
        ]
     },
@@ -436,8 +436,8 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Lamp",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/lamp003",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/lamp003"'",
+       "commands": [ 
         {"name": "on","type": "command"},
         {"name": "off","type": "command"}
        ],
@@ -445,7 +445,7 @@ curl -s -o /dev/null -X POST \
        	{"object_id": "s", "name": "state", "type":"Text"},
         {"object_id": "l", "name": "luminosity", "type":"Integer"}
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:003"}
     	]
     }
@@ -462,7 +462,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -477,7 +477,7 @@ curl -s -o /dev/null -X POST \
     "attrs": ["ring"]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -488,7 +488,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -503,7 +503,7 @@ curl -s -o /dev/null -X POST \
     "attrs": [ "lock", "unlock", "open", "close"]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -514,7 +514,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -529,7 +529,7 @@ curl -s -o /dev/null -X POST \
     "attrs": [ "on", "off" ]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -543,7 +543,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://iot-agent:4041/iot/devices' \
+  "http://iot-agent:$IOTA_NORTH_PORT/iot/devices" \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -568,14 +568,14 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Bell",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/bell004",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/bell004"'",
+       "commands": [ 
         {
           "name": "ring",
           "type": "command"
         }
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:004"}
       ]
     },
@@ -585,8 +585,8 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Door",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/door004",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/door004"'",
+       "commands": [ 
         {"name": "unlock","type": "command"},
         {"name": "open","type": "command"},
         {"name": "close","type": "command"},
@@ -595,7 +595,7 @@ curl -s -o /dev/null -X POST \
        "attributes": [
         {"object_id": "s", "name": "state", "type":"Text"}
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:004"}
        ]
     },
@@ -605,8 +605,8 @@ curl -s -o /dev/null -X POST \
       "entity_type": "Lamp",
       "protocol": "PDI-IoTA-UltraLight",
       "transport": "HTTP",
-      "endpoint": "http://iot-sensors:3001/iot/lamp004",
-      "commands": [ 
+      "endpoint": "'"http://iot-sensors:$TUTORIAL_DUMMY_DEVICE_PORT/iot/lamp004"'",
+       "commands": [ 
         {"name": "on","type": "command"},
         {"name": "off","type": "command"}
        ],
@@ -614,7 +614,7 @@ curl -s -o /dev/null -X POST \
        	{"object_id": "s", "name": "state", "type":"Text"},
         {"object_id": "l", "name": "luminosity", "type":"Integer"}
        ],
-       "static_attributes": [
+      "static_attributes": [
          {"name":"refStore", "type": "Relationship","value": "Store:004"}
     	]
     }
@@ -631,7 +631,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -646,7 +646,7 @@ curl -s -o /dev/null -X POST \
     "attrs": ["ring"]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -657,7 +657,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -672,7 +672,7 @@ curl -s -o /dev/null -X POST \
     "attrs": [ "lock", "unlock", "open", "close"]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
@@ -683,7 +683,7 @@ curl -s -o /dev/null -X POST \
 #
 
 curl -s -o /dev/null -X POST \
-  'http://orion:1026/v2/registrations' \
+  'http://orion:$ORION_PORT/v2/registrations' \
   -H 'Content-Type: application/json' \
   -H 'fiware-service: openiot' \
   -H 'fiware-servicepath: /' \
@@ -698,7 +698,7 @@ curl -s -o /dev/null -X POST \
     "attrs": [ "on", "off" ]
   },
   "provider": {
-    "http": {"url": "http://orion:1026/v1"},
+    "http": {"url": "http://orion:$ORION_PORT/v1"},
     "legacyForwarding": true
   }
 }'
