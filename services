@@ -26,7 +26,7 @@ loadData () {
 
 stoppingContainers () {
 	echo "Stopping running containers"
-	docker compose -p fiware down -v --remove-orphans
+	docker-compose down -v --remove-orphans
 }
 
 displayServices () {
@@ -116,7 +116,7 @@ case "${command}" in
 		echo -e "- \033[1mTutorial\033[0m acts as a series of dummy IoT Sensors over HTTP"
 		echo -e "- \033[1mApache Spark\033[0m is a stream-processing framework"	
 		echo ""
-		docker compose -p fiware up -d --remove-orphans
+		docker-compose up -d --remove-orphans
 		waitForMongo
 		addDatabaseIndex
 		waitForOrion
@@ -132,7 +132,7 @@ case "${command}" in
 		export $(cat .env | grep "#" -v)
 		echo "Pulling Docker images"
 		docker pull curlimages/curl
-		docker compose -p fiware pull
+		docker-compose pull
 		echo -e "Pulling \033[1;34mCosmos Spark\033[0m connector"
 		curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.1/orion.spark.connector-1.2.2.jar
 		mv orion.spark.connector-1.2.2.jar cosmos-examples/orion.spark.connector-1.2.2.jar
