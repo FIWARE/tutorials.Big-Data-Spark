@@ -115,8 +115,8 @@ Orion Context Broker と IoT Agent はどちらも、オープンソースの [M
     -   **Orion Context Broker** がデータ・エンティティ、サブスクリプション、レジストレーションなどの
         コンテキスト・データ情報を保持するために使用します
     -   **IoT Agent** がデバイスの URL やキーなどのデバイス情報を保持するために使用します
+-   HTTP **Web-Server** は、システム内のコンテキスト・エンティティを定義する静的な `@context` ファイルを提供します
 -   **チュートリアル・アプリケーション** は次のことを行います:
-    -   システム内のコンテキスト・エンティティを定義する静的な @context ファイルを提供します
     -   [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
         を使用してダミーの[農業用 IoT デバイス](https://github.com/FIWARE/tutorials.IoT-Sensors/tree/NGSI-LD)
         のセットとして機能します
@@ -201,7 +201,7 @@ docker-compose -v
 docker version
 ```
 
-Docker バージョン18.03 以降および Docker Compose 1.21 以降を使用していることを確認し、必要に応じてアップグレード
+Docker バージョン 20.10 以降および Docker Compose 1.29 以降を使用していることを確認し、必要に応じてアップグレード
 してください。
 
 <a name="maven"/>
