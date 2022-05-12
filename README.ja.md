@@ -49,9 +49,9 @@
 
 # リアルタイム処理とビッグデータ分析
 
-> "Who controls the past controls the future: who controls the present controls the past."
+> "You have to find what sparks a light in you so that you in your own way can illuminate the world."
 >
-> — George Orwell. "1984" (1949)
+> — Oprah Winfrey
 
 FIWARE に基づくスマート・ソリューションは、マイクロサービスを中心に設計されています。したがって、シンプルな
 アプリケーション (スーパーマーケット・チュートリアルなど) から、IoT センサやその他のコンテキスト・データ・プロバイダの
@@ -207,7 +207,7 @@ docker-compose -v
 docker version
 ```
 
-Docker バージョン18.03 以降および Docker Compose 1.29 以降を使用していることを確認し、必要に応じてアップグレード
+Docker バージョン20.10 以降および Docker Compose 1.29 以降を使用していることを確認し、必要に応じてアップグレード
 してください。
 
 <a name="maven"/>
@@ -715,4 +715,4 @@ object Feedback {
 
 ## License
 
-[MIT](LICENSE) © 2020 FIWARE Foundation e.V.
+[MIT](LICENSE) © 2020-2022 FIWARE Foundation e.V.
