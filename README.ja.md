@@ -42,6 +42,7 @@
         -   [フィードバック・ループ - コンテキスト変更のサブスクライブ](#feedback-loop---subscribing-to-context-changes)
         -   [フィードバック・ループ - 出力の確認](#feedback-loop---checking-the-output)
         -   [フィードバック・ループ - コードの分析](#feedback-loop---analyzing-the-code)
+-   [次のステップ](#next-steps)
 
 </details>
 
@@ -164,19 +165,18 @@ spark-worker-1:
         - "constraint:node==spark-master"
 ```
 
-`spark-master` コンテナは、三つのポートでリッスンしています:
+`spark-master` コンテナは、3つのポートでリッスンしています:
 
 -   ポート `8080` は、Apache Spark-Master ダッシュボードの Web フロントエンドを見ることができる
     ように、公開されます
-
 -   ポート `7070` は内部通信に使用されます
+-   ポート `9001` は、インストレーションがコンテキスト・データのサブスクリプションを受信できるように、
+    公開されます
 
 `spark-worker-1` コンテナは、1つのポートで待機しています:
 
--   ポート `9001` は、インストレーションがコンテキスト・データのサブスクリプションを受信できるように、
-    公開されます
 -   ポート `8081` は、Apache Spark-Worker-1 ダッシュボードの Web フロントエンドを見ることができる
-　　ように、公開されます
+    ように、公開されます
 
 <a name="prerequisites"/>
 
@@ -698,6 +698,8 @@ object Feedback {
 -   **HTTP Method**: `HTTPMethod.POST`.
 -   **Headers**: `Map("fiware-service" -> "openiot","fiware-servicepath" -> "/","Accept" -> "*/*")`.
     オプション・パラメータ。HTTP リクエストに必要なヘッダを追加します。
+
+<a name="next-steps"></a>
 
 # 次のステップ
 
