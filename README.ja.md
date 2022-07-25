@@ -15,6 +15,7 @@
 チュートリアルでは全体で [cUrl](https://ec.haxx.se/) コマンドを使用しますが、Postman のドキュメントとしても利用できます:
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.getpostman.com/collections/9e508e30f737e7db4fa9)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/FIWARE/tutorials.Big-Data-Spark/tree/NGSI-v2)
 
 ## コンテンツ
 
