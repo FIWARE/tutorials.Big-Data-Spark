@@ -139,15 +139,15 @@ spark-master:
     image: bde2020/spark-master:2.4.5-hadoop2.7
     container_name: spark-master
     expose:
-        - "8080"
-        - "9001"
+        - '8080'
+        - '9001'
     ports:
-        - "8080:8080"
-        - "7077:7077"
-        - "9001:9001"
+        - '8080:8080'
+        - '7077:7077'
+        - '9001:9001'
     environment:
         - INIT_DAEMON_STEP=setup_spark
-        - "constraint:node==spark-master"
+        - 'constraint:node==spark-master'
 ```
 
 ```yaml
@@ -157,10 +157,10 @@ spark-worker-1:
     depends_on:
         - spark-master
     ports:
-        - "8081:8081"
+        - '8081:8081'
     environment:
-        - "SPARK_MASTER=spark://spark-master:7077"
-        - "constraint:node==spark-master"
+        - 'SPARK_MASTER=spark://spark-master:7077'
+        - 'constraint:node==spark-master'
 ```
 
 The `spark-master` container is listening on three ports:
