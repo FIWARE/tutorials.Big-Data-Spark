@@ -311,7 +311,7 @@ git checkout NGSI-LD
 システムを起動するには、次のコマンドを実行します:
 
 ```console
-./services start
+./services [orion|scorpio|stellio]
 ```
 
 > :information_source: **注 :** クリーンアップしてやり直す場合は、次のコマンドを使用します :
