@@ -158,8 +158,8 @@ case "${command}" in
 	"create")
 		export $(cat .env | grep "#" -v)
 		echo "Pulling Docker images"
-		docker pull quay.io/curl/curl
-		${dockerCmd} pull 
+		docker pull -q quay.io/curl/curl
+		${dockerCmd} pull --ignore-pull-failures
 		echo -e "Pulling \033[1;34mCosmos Spark\033[0m connector"
 		curl -LO https://github.com/ging/fiware-cosmos-orion-spark-connector/releases/download/FIWARE_7.9.1/orion.spark.connector-1.2.2.jar
 		mv orion.spark.connector-1.2.2.jar cosmos-examples/orion.spark.connector-1.2.2.jar
