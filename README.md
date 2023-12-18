@@ -291,7 +291,8 @@ To start the system, run the following command:
 ./services [orion|scorpio|stellio]
 ```
 
-> :information_source: **Note:** If you want to clean up and start over again you can do so with the following command:
+> [!NOTE]
+>  If you want to clean up and start over again you can do so with the following command:
 >
 > ```console
 > ./services stop
@@ -347,7 +348,8 @@ mvn install:install-file \
   -Dpackaging=jar
 ```
 
-> :information_source: **Note:** If you executed the command `./services create`, the script automatically download the
+> [!NOTE]
+> If you executed the command `./services create`, the script automatically download the
 > corresponding `orion.spark.connector-1.2.2.jar` file into the `cosmos-example` folder.
 
 Thereafter, the source code can be compiled by running the `mvn package` command within the same directory
@@ -369,7 +371,8 @@ page:
 
 ![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.png)
 
-> :information_source: **Note:** By default, we are using the port 3000 to access the dummy IoT Sensor, this information
+> [!NOTE]
+>  By default, we are using the port 3000 to access the dummy IoT Sensor, this information
 > is detailed in the `.env` configuration file. You can change this port if you already have a service running on that
 > port.
 
@@ -414,7 +417,7 @@ This is done by making a POST request to the `/ngsi-ld/v1/subscriptions` endpoin
 
 Open another terminal and run the following command:
 
-#### :one: Request:
+#### 1️⃣ Request:
 
 ```console
 curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
@@ -442,7 +445,7 @@ The response will be **`201 - Created`**
 If a subscription has been created, we can check to see if it is firing by making a GET request to the
 `/ngsi-ld/v1/subscriptions/` endpoint.
 
-#### :two: Request:
+#### 2️⃣ Request:
 
 ```console
 curl -X GET \
@@ -598,7 +601,7 @@ find the source code of the example in
 A new subscription needs to be set up to run this example. The subscription is listening to changes of context on the
 soil humidity sensor.
 
-#### :three: Request:
+#### 3️⃣ Request:
 
 ```console
 curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
@@ -624,7 +627,7 @@ curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
 If a subscription has been created, we can check to see if it is firing by making a GET request to the
 `/ngsi-ld/v1/subscriptions/` endpoint.
 
-#### :four: Request:
+#### 4️⃣ Request:
 
 ```console
 curl -X GET \

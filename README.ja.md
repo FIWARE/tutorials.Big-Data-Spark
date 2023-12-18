@@ -449,7 +449,7 @@ docker exec -it spark-worker-1 bin/bash
 
 別のターミナルを開き、次のコマンドを実行します:
 
-#### :one: リクエスト:
+#### 1️⃣ リクエスト:
 
 ```console
 curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
@@ -477,7 +477,7 @@ curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
 サブスクリプションが作成されている場合は、`/ngsi-ld/v1/subscriptions/` エンドポイントに対して GET リクエストを行うことで、
 サブスクリプションが起動しているかどうかを確認できます。
 
-#### :two: リクエスト:
+#### 2️⃣ リクエスト:
 
 ```console
 curl -X GET \
@@ -644,7 +644,7 @@ processedDataStream.print()
 この例を実行するには、新しいサブスクリプションを設定する必要があります。 サブスクリプションは、
 土壌湿度センサのコンテキストの変化をリッスンしています。
 
-#### :three: Request:
+#### 3️⃣ Request:
 
 ```console
 curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
@@ -670,7 +670,7 @@ curl -L -X POST 'http://localhost:1026/ngsi-ld/v1/subscriptions/' \
 サブスクリプションが作成されている場合は、`/ngsi-ld/v1/subscriptions/` エンドポイントに GET
 リクエストを送信することで、サブスクリプションが起動しているかどうかを確認できます。
 
-#### :four: Request:
+#### 4️⃣ Request:
 
 ```console
 curl -X GET \
