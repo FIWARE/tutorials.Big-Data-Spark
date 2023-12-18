@@ -379,7 +379,7 @@ docker exec -it spark-worker-1 bin/bash
 
 別のターミナルを開き、次のコマンドを実行します:
 
-#### :one: リクエスト:
+#### 1️⃣ リクエスト:
 
 ```console
 curl -iX POST \
@@ -409,7 +409,7 @@ curl -iX POST \
 サブスクリプションが作成されている場合は、`/v2/subscriptions` エンドポイントに対して GET リクエストを行うことで、
 サブスクリプションが起動しているかどうかを確認できます。
 
-#### :two: リクエスト:
+#### 2️⃣ リクエスト:
 
 ```console
 curl -X GET \
