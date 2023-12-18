@@ -564,7 +564,8 @@ find the source code of the example in
 If the previous example has not been run, a new subscription will need to be set up. A narrower subscription can be set
 up to only trigger a notification when a motion sensor detects movement.
 
-> **Note:** If the previous subscription already exists, this step creating a second narrower Motion-only subscription
+> [!NOTE]
+>  If the previous subscription already exists, this step creating a second narrower Motion-only subscription
 > is unnecessary. There is a filter within the business logic of the scala task itself.
 
 ```console
