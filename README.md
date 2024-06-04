@@ -238,6 +238,7 @@ To start the system, run the following command:
 ```
 
 > [!NOTE]
+>
 > If you want to clean up and start over again you can do so with the following command:
 >
 > ```console
@@ -569,8 +570,9 @@ If the previous example has not been run, a new subscription will need to be set
 up to only trigger a notification when a motion sensor detects movement.
 
 > [!NOTE]
->  If the previous subscription already exists, this step creating a second narrower Motion-only subscription
-> is unnecessary. There is a filter within the business logic of the scala task itself.
+>
+> If the previous subscription already exists, this step creating a second narrower Motion-only subscription is
+> unnecessary. There is a filter within the business logic of the scala task itself.
 
 ```console
 curl -iX POST \
