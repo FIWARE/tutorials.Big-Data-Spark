@@ -297,7 +297,8 @@ To start the system, run the following command:
 ```
 
 > [!NOTE]
->  If you want to clean up and start over again you can do so with the following command:
+>
+> If you want to clean up and start over again you can do so with the following command:
 >
 > ```console
 > ./services stop
@@ -354,8 +355,9 @@ mvn install:install-file \
 ```
 
 > [!NOTE]
-> If you executed the command `./services create`, the script automatically download the
-> corresponding `orion.spark.connector-1.2.2.jar` file into the `cosmos-example` folder.
+>
+> If you executed the command `./services create`, the script automatically download the corresponding
+> `orion.spark.connector-1.2.2.jar` file into the `cosmos-example` folder.
 
 Thereafter, the source code can be compiled by running the `mvn package` command within the same directory
 (`cosmos-examples`):
@@ -377,9 +379,9 @@ page:
 ![](https://fiware.github.io/tutorials.Big-Data-Spark/img/farm-devices.png)
 
 > [!NOTE]
->  By default, we are using the port 3000 to access the dummy IoT Sensor, this information
-> is detailed in the `.env` configuration file. You can change this port if you already have a service running on that
-> port.
+>
+> By default, we are using the port 3000 to access the dummy IoT Sensor, this information is detailed in the `.env`
+> configuration file. You can change this port if you already have a service running on that port.
 
 ## Logger - Reading Context Data Streams
 
