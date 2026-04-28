@@ -88,7 +88,7 @@ FIWARE に基づくスマート・ソリューションは、マイクロサー�
 このアプリケーションは、[以前のチュートリアル](https://github.com/FIWARE/tutorials.IoT-Agent/)で作成されたコンポーネントと
 ダミー IoT デバイス上に構築されます。 3つの FIWARE コンポーネントを使用します。
 [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/),
-[IoT Agent for Ultralight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) および Orion を
+[IoT Agent for JSON](https://fiware-iotagent-json.readthedocs.io/en/latest/) および Orion を
 [Apache Spark cluster](https://spark.apache.org/docs/latest/cluster-overview.html) に接続するための
 [Cosmos Orion Spark Connector](https://fiware-cosmos-spark.readthedocs.io/en/latest/) です。Spark クラスタ自体は、
 実行を調整する単一の **Cluster Manager** _master_ と、タスクを実行する単一の **Worker Nodes** _worker_ で構成されます。
@@ -103,10 +103,10 @@ Orion Context Broker と IoT Agent はどちらも、オープンソースの [M
     -   FIWARE [Orion Context Broker](https://fiware-orion.readthedocs.io/en/latest/) は、
         [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json)
         を使用してリクエストを受信します
-    -   FIWARE [IoT Agent for UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/) は、
+    -   FIWARE [IoT Agent for JSON](https://fiware-iotagent-json.readthedocs.io/en/latest/) は、
         [NGSI-LD](https://forge.etsi.org/swagger/ui/?url=https://forge.etsi.org/rep/NGSI-LD/NGSI-LD/raw/master/spec/updated/generated/full_api.json)
         を使用してサウスバウンド・リクエストを受信し、それらをデバイス用の
-        [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+        [JSON](https://fiware-iotagent-json.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
         コマンドに変換します
 -   [Apache Spark cluster](https://spark.apache.org/docs/latest/cluster-overview.html) は、
     単一の **ClusterManager** と **Worker Nodes** で構成されます
@@ -118,7 +118,7 @@ Orion Context Broker と IoT Agent はどちらも、オープンソースの [M
     -   **IoT Agent** がデバイスの URL やキーなどのデバイス情報を保持するために使用します
 -   HTTP **Web-Server** は、システム内のコンテキスト・エンティティを定義する静的な `@context` ファイルを提供します
 -   **チュートリアル・アプリケーション** は次のことを行います:
-    -   [UltraLight 2.0](https://fiware-iotagent-ul.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
+    -   [JSON](https://fiware-iotagent-json.readthedocs.io/en/latest/usermanual/index.html#user-programmers-manual)
         を使用してダミーの[農業用 IoT デバイス](https://github.com/FIWARE/tutorials.IoT-Sensors/tree/NGSI-LD)
         のセットとして機能します
 
