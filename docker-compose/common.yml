@@ -106,7 +106,7 @@ services:
       - IOTA_CB_NGSI_VERSION=ld # use NGSI-LD when sending updates for active attributes
       - IOTA_JSON_LD_CONTEXT=http://context/user-context.jsonld
       - IOTA_FALLBACK_TENANT=openiot
-      - IOTA_MULTI_CORE=true
+      - IOTA_MULTI_CORE=false
       - IOTA_AMQP_DISABLED=true
       - IOTA_MQTT_DISABLED=true
     healthcheck:
@@ -190,6 +190,8 @@ services:
 
       - DUMMY_DEVICES_PAYLOAD=JSON
   spark-master:
+    labels:
+      org.fiware: 'tutorial'
     image: bde2020/spark-master:${SPARK_VERSION}
     container_name: spark-master
     expose:
@@ -205,6 +207,8 @@ services:
     volumes:
       - ${PWD}/spark/log4j.properties:/spark/conf/log4j.properties
   spark-worker-1:
+    labels:
+      org.fiware: 'tutorial'
     image: bde2020/spark-worker:${SPARK_VERSION}
     container_name: spark-worker-1
     depends_on:
